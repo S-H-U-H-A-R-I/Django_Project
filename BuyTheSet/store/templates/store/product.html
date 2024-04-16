@@ -1,0 +1,67 @@
+{% extends 'store/base.html' %} {% block content %}
+<br />
+<div class="container">
+  <div class="card mb-3">
+    <div class="row g-0">
+      <div class="col-md-4">
+        <img src="{{ product.image.url }}" class="img-fluid rounded-start" alt="..." />
+      </div>
+      <div class="col-md-8">
+        <div class="card-body">
+          <h5 class="card-title">{{ product.name }}</h5>
+          <p class="card-text justify">{{ product.description|linebreaks }}</p>
+          <br />
+          <div class="row justify-content-center">
+            <div class="col-md-2">
+              Quantity
+            </div>
+            <div class="col-md-2">
+              <select class="form-select form-select-sm" id="qty-cart">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+              </select>
+            </div>
+          </div>
+          <br />
+          <button type="button" value="{{ product.id }}" class="btn btn-secondary" id="add-cart">Add to cart</button>
+          {% if product.is_sale %}
+          <span class="price float-end">
+            <strike>R{{ product.price }}</strike>&nbsp;
+            R{{ product.sale_price }}
+          </span>
+          {% else %}
+          <span class="price float-end">R{{ product.price }}</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Check if button with id="add-cart" is pressed
+  $(document).on('click', '#add-cart', function (e) {
+    e.preventDefault();
+
+    // Send an AJAX POST request to the cart_add URL
+    $.ajax({
+      type: "POST",
+      url: '{% url "cart_add" %}',
+      data: {
+        product_id: $('#add-cart').val(),
+        product_qty: $('#qty-cart option:selected').text(),
+        csrfmiddlewaretoken: '{{ csrf_token }}',
+        action: 'post'
+      },
+      success: function (json) {
+        // update id="cart_quantity" element with new value from JSON object returned by server
+        $("#cart_quantity").html(json.qty);
+      },
+      error: function (xhr, errmsg, err) {
+        // Handle errors here
+      },
+    })
+  })
+</script>
+{% endblock %}
