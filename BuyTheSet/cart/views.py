@@ -75,8 +75,9 @@ def cart_update(request):
             product_id = int(request.POST.get('product_id'))
             product_qty = int(request.POST.get('product_qty'))
             # validate if the product exists
-            Product.objects.get(id=product_id)  
+            product = Product.objects.get(id=product_id)  
             cart.update(product=product_id, quantity=product_qty)
+            messages.success(request, f"{product.name} has been updated successfully.", "success")
             response = JsonResponse({'qty':product_qty})
             return response
         except ValueError:
