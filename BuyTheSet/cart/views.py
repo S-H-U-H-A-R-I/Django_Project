@@ -1,4 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
+from django.contrib import messages
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from .cart import Cart
@@ -46,7 +47,25 @@ def cart_add(request):
 
 
 def cart_delete(request):
-    pass
+    cart = Cart(request)
+    if request.POST.get('action') == 'post':
+        try:
+            product_id = int(request.POST.get('product_id'))
+            # validate if the product exists
+            product = Product.objects.get(id=product_id)  
+            cart.delete(product=product_id)
+            messages.success(request, f"{product.name} has been deleted successfully.", "success")
+            response = JsonResponse({'status': 'success'})
+            return response
+        except ValueError:
+            # Handle the case where the input cannot be converted to an integer
+            return JsonResponse({'error': 'Invalid input'}, status=400)
+        except ObjectDoesNotExist:
+            # Handle the case where the product does not exist
+            return JsonResponse({'error': 'Product not found'}, status=404)
+        except Exception as e:
+            # Handle any other exceptions that may occur
+            return JsonResponse({'error': str(e)}, status=500)
 
 
 def cart_update(request):
