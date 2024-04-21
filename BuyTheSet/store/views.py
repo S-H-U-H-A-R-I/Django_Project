@@ -1,18 +1,50 @@
 from django.shortcuts import redirect, render
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
-from .forms import SignUpForm
+from .forms import SignUpForm, UpdateUserform
 from .models import Product, Category
 
 
+def update_user(request):
+    if request.user.is_authenticated:
+        current_user = User.objects.get(id=request.user.id)
+        if request.method == 'POST':
+            user_form = UpdateUserform(request.POST or None, instance=current_user)
+            if user_form.is_valid():
+                user_form.save()
+                login(request, current_user)
+                messages.success(request, "Your profile has been updated successfully.")
+                return redirect('home')
+            else:
+                messages.error(request, "Please correct the error below.", "warning")
+        else:
+            user_form = UpdateUserform(instance=current_user)
+            context = {
+                "user_form": user_form
+            }
+            return render(request, "update_user.html", context)
+    else:
+        messages.error(request, "You must be logged in to update your profile.")
+        return redirect('login')
+    
+    
+def category_summary(request):
+    categories = Category.objects.all()
+    context = {
+        "categories": categories
+    }
+    return render(request, "category_summary.html", context)
+
+
 def category(request, foo):
-    # Replace Spaces with Hyphens
+    # Replace hyphens with spaces
     foo = foo.replace('-', ' ')
     # Grab the category from the url
     try:
         # Look for the category
-        category = Category.objects.get(name=foo)
+        category = Category.objects.get(name__iexact=foo)
         products = Product.objects.filter(category=category).order_by("-sale_price", "name")
         context = {
             "products": products,
@@ -44,9 +76,9 @@ def about(request):
 
 def login_user(request):
     if request.method == 'POST':
-        usermname = request.POST['username']
+        username = request.POST['username']
         password = request.POST['password']
-        user = authenticate(request, username=usermname, password=password)
+        user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
             messages.success(request, f"You have successfully logged in as {user.username}")
