@@ -9,10 +9,12 @@ def cart_summary(request):
     cart = Cart(request) # Initialize the cart object using the Cart class and the request object
     cart_products = cart.get_products() # Get the list of products in the cart using the get_products method
     quantities = cart.get_quantity() # Get the quantities of each product in the cart using the get_quantity method
-    
+    totals = cart.cart_total()
+
     context = {
         "cart_products":cart_products,
         "quantities" : quantities,
+        "totals" : totals
     }
     return render(request, "cart_summary.html", context)
 
