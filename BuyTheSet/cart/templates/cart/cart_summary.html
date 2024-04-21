@@ -45,6 +45,7 @@
                 <option value="3">3</option>
               </select>
               <button type="button" data-index="{{product.id}}" class="btn btn-secondary update-cart">Update</button>
+              <button type="button" data-index="{{product.id}}" class="btn btn-danger delete-product">Remove</button>
             </div>
           </div>
         </div>
@@ -52,11 +53,13 @@
     </div>
   </div>
   {% endfor %}
+  <h3>Total: R{{ totals }}</h3>
   {% else %}
   <p>Nothing in Cart</p>
   {% endif %}
 </div><br />
 <script>
+  // Update the cart
   $(document).ready(function () { // Ensure the DOM is fully loaded
     $('.update-cart').on('click', function (e) {
       e.preventDefault();
@@ -68,6 +71,30 @@
         data: {
           product_id: productId,
           product_qty: $('#select' + productId + ' option:selected').val(),
+          product_name: $('#add-cart').data('name'),
+          csrfmiddlewaretoken: '{{ csrf_token }}',
+          action: 'post',
+        },
+        success: function (json) {
+          location.reload();
+        },
+        error: function (xhr, errmsg, err) {
+          // Handle errors here if needed
+        },
+      });
+    });
+  });
+  // Delete the item from cart
+  $(document).ready(function () { // Ensure the DOM is fully loaded
+    $('.delete-product').on('click', function (e) {
+      e.preventDefault();
+      // Grab the product ID and quantity
+      var productId = $(this).data('index');
+      $.ajax({
+        type: 'POST',
+        url: '{% url "cart_delete" %}',
+        data: {
+          product_id: productId,
           csrfmiddlewaretoken: '{{ csrf_token }}',
           action: 'post'
         },
