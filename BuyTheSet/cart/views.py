@@ -33,15 +33,15 @@ def cart_add(request):
         # Retrieve the product object from the database using the product ID
         product = get_object_or_404(Product, id=product_id)
         
-        # Add the product to the cart
-        cart.add(product=product, quantity=product_qty)
-        
-        # Get cart quantity
-        cart_quantity = cart.__len__()
-        
-        # Prepare the response data with the product name
-        response = {'qty': cart_quantity}
-        
+        try:
+            # Add the product to the cart
+            cart.add(product=product, quantity=product_qty)
+            # Get cart quantity
+            cart_quantity = cart.__len__()
+            response = {'success': True, 'qty': cart_quantity, 'product_name': product.name}
+        except Exception as e:
+            response = {'success': False, 'error': str(e)}
+    
         # Return the response data as a JSON object
         return JsonResponse(response)
 
