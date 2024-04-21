@@ -44,6 +44,27 @@ class Cart:
     def get_quantity(self):
         quantities = self.cart
         return quantities
+
+    def cart_total(self):
+        # Get the list of products in the cart
+        products = self.get_products()
+        
+        # Initialize the total cost to 0
+        total = 0
+        
+        # Iterate through each product in the cart
+        for product in products:
+            # Check if the product is on sale
+            if product.is_sale:
+                # If it is on sale, calculate the cost of each individual product
+                # and add it to the total
+                total += product.sale_price * self.cart[str(product.id)]
+            else:
+                # If not on sale, use the regular price
+                total += product.price * self.cart[str(product.id)]
+        print(total)
+        # Return the total cost of all products in the cart
+        return total
     
     def update(self, product, quantity):
         """
