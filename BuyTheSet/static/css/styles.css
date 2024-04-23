@@ -12663,3 +12663,23 @@ fieldset:disabled .btn {
   font-size: 1.5rem;
   color: #496057;
 }
+
+
+
+.custom-search-input:focus {
+    border-color: #ccc !important;
+    box-shadow: none !important;
+}
+
+.navbar a.btn.btn-outline-secondary:hover {
+    background-color: transparent !important;
+    color: #ccc !important;
+    border-color: #ccc !important;
+}
+
+.navbar a.btn.btn-outline-secondary:hover .bi-cart-fill {
+    color: #ccc !important;
+}
+.navbar a.btn.btn-outline-secondary:hover #cart_quantity {
+    background-color: #ccc !important;
+}

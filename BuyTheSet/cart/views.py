@@ -1,21 +1,44 @@
+from icecream import ic
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import messages
+from django.contrib.auth.signals import user_logged_in
+from django.dispatch import receiver
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
-from .cart import Cart
+from .models import Cart, CartItem
+from .cart import CartManager
 from store.models import Product
 
 
+@receiver(user_logged_in)
+def merge_guest_cart(sender, user, request, **kwargs):
+    guest_cart = request.session.get('cart_id')
+    if guest_cart:
+        try:
+            guest_cart = Cart.objects.get(id=guest_cart)
+            user_cart, _ = Cart.objects.get_or_create(user=user)
+            for item in guest_cart.cartitem_set.all():
+                user_item, created = CartItem.objects.get_or_create(cart=user_cart, product=item.product)
+                user_item.quantity = item.quantity
+                user_item.save()
+            guest_cart.delete()
+            del request.session['cart_id']
+        except Cart.DoesNotExist:
+            pass
+
+
 def cart_summary(request):
-    cart = Cart(request) # Initialize the cart object using the Cart class and the request object
+    cart = CartManager(request) # Initialize the cart object using the Cart class and the request object
     cart_products = cart.get_products() # Get the list of products in the cart using the get_products method
     quantities = cart.get_quantity() # Get the quantities of each product in the cart using the get_quantity method
     totals = cart.cart_total()
+    total_quantity = sum(quantities.values())
 
     context = {
         "cart_products":cart_products,
         "quantities" : quantities,
-        "totals" : totals
+        "totals" : totals,
+        "total_quantity" : total_quantity,
     }
     return render(request, "cart_summary.html", context)
 
@@ -24,7 +47,7 @@ def cart_add(request):
     # Check if the request method is POST
     if request.method == 'POST':
         # Initialize the cart object with the current request
-        cart = Cart(request)
+        cart = CartManager(request)
         
         # Get the product ID from the POST data
         product_id = int(request.POST.get('product_id'))
@@ -47,7 +70,7 @@ def cart_add(request):
 
 
 def cart_delete(request):
-    cart = Cart(request)
+    cart = CartManager(request)
     if request.POST.get('action') == 'post':
         try:
             product_id = int(request.POST.get('product_id'))
@@ -69,7 +92,7 @@ def cart_delete(request):
 
 
 def cart_update(request):
-    cart = Cart(request)
+    cart = CartManager(request)
     if request.POST.get('action') == 'post':
         try:
             product_id = int(request.POST.get('product_id'))

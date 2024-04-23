@@ -1,4 +1,4 @@
-from .cart import Cart
+from .cart import CartManager
 
 def get_cart(request):
-    return {'cart': Cart(request)}
+    return {'cart': CartManager(request)}

@@ -11,12 +11,23 @@
           <a class="nav-link fw-bold fs-5 {% if request.path == '/about/' %}active{% endif %}" href="{% url 'about' %}">About</a>
         </li>
         {% if user.is_authenticated %}
-          <li class="nav-item">
-            <a class="nav-link fw-bold fs-5 {% if request.path == '/update_user/' %}active{% endif %}" href="{% url 'update_user' %}">Profile</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link fw-bold fs-5 {% if request.path == '/logout/' %}active{% endif %}" href="{% url 'logout' %}">Logout</a>
-          </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle fw-bold fs-5 {% if request.path == '/categories/' %}active{% endif %}" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Profile</a>
+                <ul class="dropdown-menu bg-dark" aria-labelledby="navbarDropdown">
+                    <li>
+                        <a class="dropdown-item text-white " href="{% url 'update_user' %}">User Profile</a>
+                    </li>
+                    <li>
+                        <hr class="dropdown-divider" />
+                    </li>
+                    <li>
+                        <a class="dropdown-item text-white" href="{% url 'update_info' %}">User Info</a>
+                    </li>
+                </ul>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link fw-bold fs-5 {% if request.path == '/logout/' %}active{% endif %}" href="{% url 'logout' %}">Logout</a>
+            </li>
         {% else %}
           <li class="nav-item">
             <a class="nav-link fw-bold fs-5 {% if request.path == '/login/' %}active{% endif %}" href="{% url 'login' %}">Login</a>
@@ -42,15 +53,20 @@
           </ul>
         </li>
       </ul>
-      {% if request.path != '/cart/' %}
+        <form class="d-flex" action="{% url 'product_search' %}" method="get"> {% csrf_token %}
+            <input class="form-control bg-dark text-white border-secondary me-2 custom-search-input" type="search" placeholder="Search products..." aria-label="Search" name="q" value="{{ request.GET.q }}">
+            {% if category %}
+            <input type="hidden" name="category" value="{{ category.name }}">
+            {% endif %}
+        </form>
+        {% if request.path != '/cart/' %}
         <form class="d-flex">
-          <a href="{% url 'cart_summary' %}" class="btn btn-outline-light ms-2">
+          <a href="{% url 'cart_summary' %}" class="btn btn-outline-secondary ms-2">
             <i class="bi-cart-fill me-1"></i>
             Cart
-            <span id="cart_quantity" class="badge bg-light text-black ms-1 rounded-pill">{{ cart|length }}</span>
           </a>
         </form>
-      {% endif %}
+        {% endif %}
     </div>
   </div>
 </nav>

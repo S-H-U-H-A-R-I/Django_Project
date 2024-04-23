@@ -1,25 +1,30 @@
 from store.models import Product
+from .models import Cart, CartItem
+from icecream import ic
 
 
-class Cart:
+class CartManager:
     def __init__(self, request):
-        # Initialize the Cart object with the given request.
-        # The request object contains the session information.
         self.session = request.session
-        
-        # Get the cart from the session using the 'session_key' key.
-        # If the 'session_key' key is not present in the session,
-        # use an empty dictionary as the default value.
-        self.cart = self.session.get('session_key', {})
-        if not self.cart:  # If the cart is empty, initialize it with an empty dictionary.
-            self.session['session_key'] = self.cart
+        self.user = request.user
+        if self.user.is_authenticated:
+            self.cart, _ = Cart.objects.get_or_create(user=self.user)
+        else:
+            cart_id = self.session.get('cart_id')
+            if cart_id:
+                self.cart = Cart.objects.filter(id=cart_id, user=None).first()
+            if not cart_id or not self.cart:
+                self.cart = Cart.objects.create(user=None)
+                self.session['cart_id'] = self.cart.id
             
     def add(self, product, quantity):
-        product_id = str(product.id)
-        if product_id not in self.cart:     # If the product is not already in the cart, add it with a quantity of 0
-            self.cart[product_id] = 0
-        self.cart[product_id] += quantity   # Increment the quantity of the product in the cart by the given quantity
-        self.session.modified = True        # Indicate that the session has been modified
+        if self.cart:
+            try:
+                cart_item = CartItem.objects.get(cart=self.cart, product=product)
+                cart_item.quantity = quantity
+                cart_item.save()
+            except CartItem.DoesNotExist:
+                CartItem.objects.create(cart=self.cart, product=product, quantity=quantity)
         
     def __len__(self):
         """
@@ -28,66 +33,52 @@ class Cart:
         By implementing this method, we can define the behavior of `len` for instances of this class.
         In this case, we return the length of the `cart` attribute, which is a list of items in the user's cart.
         """
-        return len(self.cart)    
+        if self.cart:
+            return self.cart.cartitem_set.count()
+        return 0
     
     def get_products(self):
-        # Retrieve the keys (product IDs) from the cart object
-        product_ids = self.cart.keys()
-        
-        # Filter the Product model to only include objects with IDs in the product_ids list
-        # The '__in' lookup type is used to filter the queryset based on a list of values
-        products = Product.objects.filter(id__in=product_ids)
-
-        # Return the filtered queryset of Product objects
-        return products
+        if self.cart:
+            return [item.product for item in self.cart.cartitem_set.all()]
+        return []
     
     def get_quantity(self):
-        quantities = self.cart
-        return quantities
+        if self.cart:
+            return {str(item.product.id): item.quantity for item in self.cart.cartitem_set.all()}
+        return {}
 
     def cart_total(self):
-        # Get the list of products in the cart
-        products = self.get_products()
-        
-        # Initialize the total cost to 0
-        total = 0
-        
-        # Iterate through each product in the cart
-        for product in products:
-            # Check if the product is on sale
-            if product.is_sale:
-                # If it is on sale, calculate the cost of each individual product
-                # and add it to the total
-                total += product.sale_price * self.cart[str(product.id)]
-            else:
-                # If not on sale, use the regular price
-                total += product.price * self.cart[str(product.id)]
-        print(total)
-        # Return the total cost of all products in the cart
-        return total
+        if self.cart:
+            total = 0
+            for item in self.cart.cartitem_set.all():
+                product = item.product
+                quantity = item.quantity
+                if product.is_sale:
+                    total += product.sale_price * quantity
+                else:
+                    total += product.price * quantity
+            return total
+        return 0
     
     def update(self, product, quantity):
-        """
-        Update the quantity of the specified product in the cart.
-
-        :param product: The product instance or identifier.
-        :param quantity: The new quantity for the product.
-        """
-        product_id = str(product)
-        product_qty = int(quantity)  
-        
-        ourcart = self.cart
-        ourcart[product_id] = product_qty
-        
-        self.session.modified = True
-            
-        thing = self.cart
-        return thing
+        if self.cart:
+            try:
+                cart_item = CartItem.objects.get(cart=self.cart, product=product)
+                if quantity > 0:
+                    cart_item.quantity = quantity
+                    cart_item.save()
+                else:
+                    cart_item.delete()
+            except CartItem.DoesNotExist:
+                if quantity > 0:
+                    CartItem.objects.create(cart=self.cart, product=product, quantity=quantity)
     
     def delete(self, product):
-        product_id = str(product)
-        if product_id in self.cart:
-            del self.cart[product_id]
-            self.session.modified = True
+        if self.cart:
+            try:
+                cart_item = CartItem.objects.get(cart=self.cart, product=product)
+                cart_item.delete()
+            except CartItem.DoesNotExist:
+                pass
             
         

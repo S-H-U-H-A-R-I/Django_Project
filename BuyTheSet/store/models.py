@@ -1,5 +1,34 @@
 from django.db import models
 from django.utils import timezone
+from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.db import IntegrityError
+
+# Create customer profile
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    phone_number = models.CharField(max_length=255, blank=True)
+    email = models.EmailField(unique=True, blank=False)
+    address1 = models.CharField(max_length=255, blank=True)
+    address2 = models.CharField(max_length=255, blank=True)
+    date_modified = models.DateTimeField(User, auto_now=True)
+    
+    def __str__(self):
+        return self.user.username
+
+
+# Create a user Profile by default when the user signs up
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        try:
+            user_profile = Profile(user=instance, email=instance.email)
+            user_profile.save()
+        except IntegrityError:
+            pass
+
+# Automate the creation of a user profile when a user is created
+post_save.connect(create_user_profile, sender=User)
+
 
 class Category(models.Model):
     name = models.CharField(max_length=50)
@@ -45,9 +74,6 @@ class Product(models.Model):
         
     def __str__(self):
         return self.name
-    
-
-    
     
 
 class Order(models.Model):
