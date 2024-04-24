@@ -1,49 +1,33 @@
 from django.shortcuts import render, redirect
 from .forms import PaymentForm, ShippingAddressForm
-from .models import ShippingAddress
-from store.models import Profile
-
+from .serializers import ShippingAddressSerializer
+from icecream import ic
 
 def add_shipping_address(request):
+    user = request.user
     initial_data = {}
     shipping_address = None
-    if request.user.is_authenticated:
-        # Try to fetch an existing shipping address for the user
-        shipping_address = ShippingAddress.objects.filter(user=request.user).first()
+    if user.is_authenticated:
+        # Retrieve the user's existing shipping addresss, if any
+        shipping_address = ShippingAddressSerializer.get_user_shipping_address(user)
         if shipping_address:
-            # if a shipping address exists, use it to pre-populate the form
-            initial_data = {
-                'full_name': shipping_address.full_name,
-                'email': shipping_address.email,
-                'address1': shipping_address.address1,
-                'address2': shipping_address.address2,
-                'phone_number': shipping_address.phone_number,
-            }
+            # If a shipping address exists, use its data as initial data for the form
+            initial_data = ShippingAddressSerializer.get_initial_data_from_shipping_address(shipping_address)
         else:
-            # if no shipping address exists, pre-populate the form with the user's profile
-            profile = Profile.objects.filter(user=request.user).first()
-            if profile:
-                initial_data = {
-                    'full_name': request.user.get_full_name(),
-                    'email': profile.email,
-                    'phone_number': profile.phone_number,
-                    'address1': profile.address1,
-                    'address2': profile.address2,
-                }
+            # If no shipping address exists, use the user's profile data as initial data for the form
+            initial_data = ShippingAddressSerializer.get_initial_data_from_user_profile(user)
     else:
-        # Load initial data from session if available (for guests)
+        # For guest users, retrieve the shipping address data from the session, if available
         initial_data = request.session.get('guest_shipping_address', {})
+    # Create an instance of the ShippingAddressForm with the initial and the shipping address instance (if available)
     form = ShippingAddressForm(request.POST or None, instance=shipping_address, initial=initial_data)
     if request.method == 'POST' and form.is_valid():
-        if request.user.is_authenticated:
-            shipping_address = form.save(commit=False)
-            shipping_address.user = request.user
-            shipping_address.save()
-        else:
-            # Save form data to session for guest users
-            request.session['guest_shipping_address'] = form.cleaned_data
+        # if the request method is POST and the form is valid, save the shipping address
+        ShippingAddressSerializer.save_shipping_address(form, user, request)
         return redirect('home')
-    return render(request, 'add_shipping_address.html', {'form': form})
+    # Render the shipping address form template with the form as context
+    return render(request, 'shipping_address.html', {'form': form})
+    
 
 def process_payment(request):
     if request.method == 'POST':
