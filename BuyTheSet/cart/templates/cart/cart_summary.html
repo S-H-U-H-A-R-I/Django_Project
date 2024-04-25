@@ -8,44 +8,38 @@
   </div>
 </header><br />
 <div class="container">
-  {% if cart_products %}
-  {% for product in cart_products %}
+  {% if cart_items %}
+  {% for item in cart_items %}
   <div class="card mb-3">
     <div class="row g-0">
       <div class="col-md-4">
-        <img src="{{ product.image.url }}" class="img-fluid rounded-start" alt="..." />
+        <img src="{{ item.product.image.url }}" class="img-fluid rounded-start" alt="..." />
       </div>
       <div class="col-md-8">
         <div class="card-body">
-          <h5 class="card-title">{{ product.name }}</h5>
-          <p class="card-text justify">{{ product.description|linebreaks }}</p>
-          {% if product.is_sale %}
+          <h5 class="card-title">{{ item.product.name }}</h5>
+          <p class="card-text justify">{{ item.product.description|linebreaks }}</p>
+          {% if item.product.is_sale %}
           <span class="price float-end">
-            <strike>R{{ product.price }}</strike>&nbsp;
-            R{{ product.sale_price }}
+            <strike>R{{ item.product.price }}</strike>&nbsp;
+            R{{ item.product.sale_price }}
           </span>
           {% else %}
-          <span class="price float-end">R{{ product.price }}</span>
+          <span class="price float-end">R{{ item.product.price }}</span>
           {% endif %}
           <div class="row justify-content-center">
             <div class="col-md-2">
               Quantity
             </div>
             <div class="col-md-2">
-              <select class="form-select form-select-sm" id="select{{product.id}}">
-                <option selected>
-                  {% for key, value in quantities.items %}
-                  {% if key == product.id|slugify %}
-                  {{ value }}
-                  {% endif %}
-                  {% endfor %}
-                </option>
+              <select class="form-select form-select-sm" id="select{{item.product.id}}">
+                <option value="{{ item.quantity }}" selected>{{item.quantity}}</option>
                 <option value="1">1</option>
                 <option value="2">2</option>
                 <option value="3">3</option>
               </select>
-              <button type="button" data-index="{{product.id}}" class="btn btn-secondary update-cart">Update</button>
-              <button type="button" data-index="{{product.id}}" class="btn btn-danger delete-product">Remove</button>
+              <button type="button" data-index="{{item.product.id}}" class="btn btn-secondary update-cart">Update</button>
+              <button type="button" data-index="{{item.product.id}}" class="btn btn-danger delete-product">Remove</button>
             </div>
           </div>
         </div>
@@ -53,33 +47,45 @@
     </div>
   </div>
   {% endfor %}
-  <h3>Total: R{{ totals }}</h3>
+  <h3>Total: R{{ cart_total }}</h3>
   {% else %}
   <p>Nothing in Cart</p>
   {% endif %}
 </div><br />
 <script>
   // Update the cart
-  $(document).ready(function () { // Ensure the DOM is fully loaded
+  $(document).ready(function () { 
     $('.update-cart').on('click', function (e) {
       e.preventDefault();
-      // Grab the product ID and quantity
       var productId = $(this).data('index');
+      var quantity = $('#select' + productId).val();
       $.ajax({
         type: 'POST',
         url: '{% url "cart_update" %}',
         data: {
           product_id: productId,
-          product_qty: $('#select' + productId + ' option:selected').val(),
-          product_name: $('#add-cart').data('name'),
+          product_qty: quantity,
           csrfmiddlewaretoken: '{{ csrf_token }}',
-          action: 'post',
         },
-        success: function (json) {
-          location.reload();
+        success: function (response) {
+          if (response.success) {
+            $.ajax({
+                type: 'GET',
+                url: '{% url "cart_summary" %}',
+                success: function (data) {
+                    var updatedTotal = $(data).find('h3').text();
+                    $('h3').text(updatedTotal);
+                },
+                error: function (xhr, errmsg, err) {
+                    console.log(xhr.status + ": " + xhr.responseText);
+                }
+            });
+          } else {
+            alert(response.error)
+          }
         },
         error: function (xhr, errmsg, err) {
-          // Handle errors here if needed
+          console.log(xhr.status + ": " + xhr.responseText);
         },
       });
     });
@@ -96,13 +102,16 @@
         data: {
           product_id: productId,
           csrfmiddlewaretoken: '{{ csrf_token }}',
-          action: 'post'
         },
-        success: function (json) {
-          location.reload();
+        success: function (response) {
+          if (response.success) {
+            location.reload();
+          } else {
+            alert(response.error)
+          }
         },
         error: function (xhr, errmsg, err) {
-          // Handle errors here if needed
+          console.log(xhr.status + ": " + xhr.responseText);
         },
       });
     });

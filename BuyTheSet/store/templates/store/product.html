@@ -69,7 +69,6 @@
       success: function (response) {
         handleAjaxResponse(response);
         // update id="cart_quantity" element with new value from JSON object returned by server
-        $("#cart_quantity").html(response.qty);
       },
       error: function (xhr, status, error) {
         console.error(error);
