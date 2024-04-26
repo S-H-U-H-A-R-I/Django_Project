@@ -1,8 +1,7 @@
 {% extends 'store/base.html' %}
-{% load static %}
-
 {% block content %}
 <header class="bg-dark py-5">
+    <script src="https://js.paystack.co/v2/inline.js"></script>
     <div class="container px-4 px-lg-5 my-5">
         <div class="text-center text-white">
             <h1 class="display-4 fw-bolder">Order Summary</h1>
@@ -39,13 +38,107 @@
         </div>
         <div class="col-md-4">
             <h4>Shipping Information</h4>
-            <form action="{% url 'checkout' %}" method="POST">
+            <form id="shipping-form" action="{% url 'checkout' %}" method="POST">
                 {% csrf_token %}
                 {{ form.as_p }}
-                <button type="submit" class="btn btn-primary">Place Order</button>
+                <div class="container my-3">
+                    <button type="button" class="btn btn-primary" onclick="saveShippingInfo()">Pay with Paystack</button>
+                </div>
+            </form>
+            <form id="paystack-form">
+                <input type="hidden" name="email" value="">
+                <input type="hidden" name="first_name" value="">
+                <input type="hidden" name="last_name" value="">
+                <input type="hidden" name="phone" value="">
             </form>
         </div>
     </div>
 </div>
+<script>
+    function saveShippingInfo(){
+        var form = document.getElementById('shipping-form');
+        var formData = new FormData(form);
+
+        // Clear previous error messages and field highlighting
+        clearErrors()
+
+        // Make an AJAX request to save the shipping information
+        fetch("{% url 'save_shipping_info' %}", {
+            method: 'POST',
+            body: formData,
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Shipping information saved successfully, update Paystack form fields
+                var paystackForm = document.getElementById('paystack-form');
+                paystackForm.querySelector('input[name="email"]').value = formData.get('email');
+                paystackForm.querySelector('input[name="first_name"]').value = formData.get('full_name').split(' ')[0];
+                paystackForm.querySelector('input[name="last_name"]').value = formData.get('full_name').split(' ')[1];
+                paystackForm.querySelector('input[name="phone"]').value = formData.get('phone_number');
+                // Proceed with Paystack payment
+                payWithPaystack();
+            } else {
+                // Handle error if shipping information could not be saved
+                displayErrors(data.errors);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+
+
+    function clearErrors(){
+        var errorMessages = document.querySelectorAll('.error-message');
+        errorMessages.forEach(function(errorMessage) {
+            errorMessage.remove();
+        });
+        var errorFields = document.querySelectorAll('.error-field');
+        errorFields.forEach(function(errorField) {
+            errorField.classList.remove('error-field');
+        });
+    }
+    
+    
+    function displayErrors(errors) {
+        for (var field in errors) {
+            var errorMessage = document.createElement('p');
+            errorMessage.classList.add('error-message');
+            errorMessage.innerText = errors[field];
+
+            var inputField = document.querySelector('[name="' + field + '"]');
+            inputField.parentNode.insertBefore(errorMessage, inputField.nextSibling);
+            inputField.classList.add('error-field');
+        }
+    }
+
+    
+    function payWithPaystack() {
+        var paystackForm = document.getElementById('paystack-form');
+        var email = paystackForm.querySelector('input[name="email"]').value;
+        var firstName = paystackForm.querySelector('input[name="first_name"]').value;
+        var lastName = paystackForm.querySelector('input[name="last_name"]').value;
+        var phone = paystackForm.querySelector('input[name="phone"]').value;
+
+        const handler = new PaystackPop();
+        handler.newTransaction({
+            key: '{{ paystack_public_key }}',
+            email: email,
+            amount: '{{ cart_total|stringformat:"d" }}00',
+            currency: "ZAR",
+            ref: ''+Math.floor((Math.random() * 1000000000) +1),
+            firstname: firstName,
+            lastname: lastName,
+            phone: phone,
+            onSuccess: (response) => {
+                document.getElementById('shipping-form').submit();
+            },
+            onCancel: () => {
+                // user closed popup
+            },
+        });
+    }
+</script>
 {% endblock %}
 

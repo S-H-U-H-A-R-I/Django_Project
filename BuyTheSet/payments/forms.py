@@ -14,7 +14,7 @@ class ShippingAddressForm(forms.ModelForm):
             'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email Address'}),
             'phone_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Phone Number'}),
             'address1': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Address Line 1'}),
-            'address2': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Address Line 2'}),
+            'address2': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Address Line 2 (optional)'}),
         }
         labels = {
             'full_name': '',
@@ -22,10 +22,6 @@ class ShippingAddressForm(forms.ModelForm):
             'phone_number': '',
             'address1': '',
             'address2': '',
-        }
-        help_texts = {
-            'address1': 'Include street and suburb',
-            'address2': 'optional',
         }
         error_messages = {
             'full_name': {
@@ -37,6 +33,7 @@ class ShippingAddressForm(forms.ModelForm):
             },
             'phone_number': {
                'required': 'Please enter your phone number',
+               'invalid': 'Please enter a valid phone number in the format: "+27123456789" or "0123456789"',
             },
             'address1': {
                'required': 'Please enter your address',

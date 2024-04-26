@@ -1,26 +1,7 @@
+from .forms import ShippingAddressForm
 from .models import ShippingAddress
 from store.models import Profile
 from cart.serializers import CartSerializer
-
-
-class PaymentSerializer:
-    @staticmethod
-    def get_cart_items_data(cart):
-        cart_items = CartSerializer.get_cart_items(cart)
-        cart_items_data = []
-        for item in cart_items:
-            item_data = {
-                'name': item.product.name,
-                'price': item.product.sale_price if item.product.is_sale else item.product.price,
-                'quantity': item.quantity,
-                'total': item.product.sale_price * item.quantity if item.product.is_sale else item.product.price * item.quantity,
-            }
-            cart_items_data.append(item_data)
-        return cart_items_data
-    
-    @staticmethod
-    def get_cart_total(cart):
-        return CartSerializer.get_cart_total(cart)
 
 
 class ShippingAddressSerializer:
@@ -54,8 +35,37 @@ class ShippingAddressSerializer:
     @staticmethod
     def save_shipping_address(form, user, request):
         if user.is_authenticated:
-            shipping_address = form.save(commit=False)
-            shipping_address.user = user
-            shipping_address.save()
+            shipping_address = ShippingAddressSerializer.get_user_shipping_address(user)
+            if shipping_address:
+                form = ShippingAddressForm(request.POST, instance=shipping_address)
+                form.save()
+            else:
+                shipping_address = form.save(commit=False)
+                shipping_address.user = user
+                shipping_address.save()
         else:
-            request.session['guest_shipping_address'] = form.cleaned_data
+            shipping_address = form.save(commit=False)
+            shipping_address.save()
+            request.session['guest_shipping_address_id'] = shipping_address.id
+            
+            
+class PaymentSerializer:
+    @staticmethod
+    def get_cart_items_data(cart):
+        cart_items = CartSerializer.get_cart_items(cart)
+        cart_items_data = []
+        for item in cart_items:
+            item_data = {
+                'name': item.product.name,
+                'price': item.product.sale_price if item.product.is_sale else item.product.price,
+                'quantity': item.quantity,
+                'total': item.product.sale_price * item.quantity if item.product.is_sale else item.product.price * item.quantity,
+            }
+            cart_items_data.append(item_data)
+        return cart_items_data
+    
+    @staticmethod
+    def get_cart_total(cart):
+        return CartSerializer.get_cart_total(cart)
+
+
