@@ -6,9 +6,9 @@ from datetime import timedelta
 from .models import Cart, CartItem
 
 
-class OldGuestCartFilter(admin.SimpleListFilter):
-    title = 'old guest carts'
-    parameter_name = 'old_guest_carts'
+class GuestCartFilter(admin.SimpleListFilter):
+    title = 'guest carts'
+    parameter_name = 'guest_carts'
     
     def lookups(self, request, model_admin):
         return (
@@ -17,11 +17,10 @@ class OldGuestCartFilter(admin.SimpleListFilter):
         )
         
     def queryset(self, request, queryset):
-        one_day_ago = timezone.now() - timedelta(days=1)
         if self.value() == 'yes':
-            return queryset.filter(user=None, created_at__lte=one_day_ago)
+            return queryset.filter(user=None)
         elif self.value() == 'no':
-            return queryset.exclude(user=None, created_at__lte=one_day_ago)
+            return queryset.exclude(user=None)
 
 
 class CartItemInline(admin.TabularInline):
@@ -42,7 +41,7 @@ delete_old_guest_carts.short_description = "Delete selected old guest carts"
 
 class CartAdmin(admin.ModelAdmin):
     list_display = ('user', 'get_total_items', 'created_at')
-    list_filter = ('user','created_at', OldGuestCartFilter)
+    list_filter = ('user','created_at', GuestCartFilter)
     actions = [delete_old_guest_carts]
     inlines = [CartItemInline]
     search_fields = ['user__username']

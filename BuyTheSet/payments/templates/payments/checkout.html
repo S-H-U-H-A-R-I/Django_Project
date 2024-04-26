@@ -39,13 +39,9 @@
         </div>
         <div class="col-md-4">
             <h4>Shipping Information</h4>
-            <p><strong>Full Name:</strong> {{ shipping_address.full_name }}</p>
-            <p><strong>Email:</strong> {{ shipping_address.email }}</p>
-            <p><strong>Address Line 1:</strong> {{ shipping_address.address1 }}</p>
-            <p><strong>Address Line 2:</strong> {{ shipping_address.address2 }}</p>
-            <p><strong>Phone Number:</strong> {{ shipping_address.phone_number }}</p>
-            <form method="POST">
+            <form action="{% url 'checkout' %}" method="POST">
                 {% csrf_token %}
+                {{ form.as_p }}
                 <button type="submit" class="btn btn-primary">Place Order</button>
             </form>
         </div>

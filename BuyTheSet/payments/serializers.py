@@ -5,10 +5,6 @@ from cart.serializers import CartSerializer
 
 class PaymentSerializer:
     @staticmethod
-    def get_user_shipping_address(user):
-        return ShippingAddress.objects.filter(user=user).first()
-    
-    @staticmethod
     def get_cart_items_data(cart):
         cart_items = CartSerializer.get_cart_items(cart)
         cart_items_data = []
