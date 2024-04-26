@@ -47,7 +47,11 @@
     </div>
   </div>
   {% endfor %}
-  <h3>Total: R{{ cart_total }}</h3>
+   <div class="d-flex justify-content-between align-items-center">
+       <h3>Total: R{{ cart_total }}</h3>
+       <a href="{% url 'checkout' %}" class="btn btn-primary">Proceed to Checkout</a>
+   </div>
+  
   {% else %}
   <p>Nothing in Cart</p>
   {% endif %}

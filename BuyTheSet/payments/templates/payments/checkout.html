@@ -1,0 +1,55 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block content %}
+<header class="bg-dark py-5">
+    <div class="container px-4 px-lg-5 my-5">
+        <div class="text-center text-white">
+            <h1 class="display-4 fw-bolder">Order Summary</h1>
+        </div>
+    </div>
+</header>
+<div class="container my-5">
+    <div class="row">
+        <div class="col-md-8">
+            <table class="table table-bordered">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cart_items_data %}
+                    <tr>
+                        <td>{{ item.name }}</td>
+                        <td>R{{ item.price }}</td>
+                        <td>{{ item.quantity}}</td>
+                        <td>R{{ item.total }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div class="text-right">
+                <h5>Shipping: Free</h5>
+                <h4>Total: R{{ cart_total }}</h4>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <h4>Shipping Information</h4>
+            <p><strong>Full Name:</strong> {{ shipping_address.full_name }}</p>
+            <p><strong>Email:</strong> {{ shipping_address.email }}</p>
+            <p><strong>Address Line 1:</strong> {{ shipping_address.address1 }}</p>
+            <p><strong>Address Line 2:</strong> {{ shipping_address.address2 }}</p>
+            <p><strong>Phone Number:</strong> {{ shipping_address.phone_number }}</p>
+            <form method="POST">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">Place Order</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

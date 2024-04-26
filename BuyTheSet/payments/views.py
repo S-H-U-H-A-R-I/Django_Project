@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect
 from .forms import PaymentForm, ShippingAddressForm
-from .serializers import ShippingAddressSerializer
+from .serializers import ShippingAddressSerializer, PaymentSerializer
+from cart.cart import CartManager
+from cart.serializers import CartSerializer
 from icecream import ic
 
 def add_shipping_address(request):
@@ -27,6 +29,26 @@ def add_shipping_address(request):
         return redirect('home')
     # Render the shipping address form template with the form as context
     return render(request, 'shipping_address.html', {'form': form})
+    
+    
+def checkout(request):
+    user = request.user
+    cart = CartManager(request)
+    if user.is_authenticated:
+        shipping_address = PaymentSerializer.get_user_shipping_address(user)
+    else:
+        shipping_address = None
+    cart_items_data = PaymentSerializer.get_cart_items_data(cart.cart)
+    cart_total = PaymentSerializer.get_cart_total(cart.cart)
+    if request.method == 'POST':
+        return redirect('order_success')
+    context = {
+        'cart_items_data': cart_items_data,
+        'cart_total': cart_total,
+       'shipping_address': shipping_address,
+    }
+    return render(request, 'checkout.html', context)    
+    
     
 
 def process_payment(request):

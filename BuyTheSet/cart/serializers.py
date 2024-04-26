@@ -1,5 +1,4 @@
 from .models import Cart, CartItem
-from store.models import Product
 
 class CartSerializer:
     @staticmethod
@@ -29,6 +28,7 @@ class CartSerializer:
         cart_item.quantity = quantity
         cart_item.save()
         
+    
     @staticmethod
     def remove_item(cart, product_id):
         cart_item = cart.cartitem_set.filter(product_id=product_id).first()

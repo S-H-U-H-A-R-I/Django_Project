@@ -1,5 +1,31 @@
 from .models import ShippingAddress
 from store.models import Profile
+from cart.serializers import CartSerializer
+
+
+class PaymentSerializer:
+    @staticmethod
+    def get_user_shipping_address(user):
+        return ShippingAddress.objects.filter(user=user).first()
+    
+    @staticmethod
+    def get_cart_items_data(cart):
+        cart_items = CartSerializer.get_cart_items(cart)
+        cart_items_data = []
+        for item in cart_items:
+            item_data = {
+                'name': item.product.name,
+                'price': item.product.sale_price if item.product.is_sale else item.product.price,
+                'quantity': item.quantity,
+                'total': item.product.sale_price * item.quantity if item.product.is_sale else item.product.price * item.quantity,
+            }
+            cart_items_data.append(item_data)
+        return cart_items_data
+    
+    @staticmethod
+    def get_cart_total(cart):
+        return CartSerializer.get_cart_total(cart)
+
 
 class ShippingAddressSerializer:
     @staticmethod
