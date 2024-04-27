@@ -18,13 +18,13 @@ class CartManager:
                 self.session['cart_id'] = self.cart.id
             
     def add(self, product, quantity):
-        if self.cart:
-            try:
-                cart_item = CartItem.objects.get(cart=self.cart, product=product)
-                cart_item.quantity = quantity
-                cart_item.save()
-            except CartItem.DoesNotExist:
-                CartItem.objects.create(cart=self.cart, product=product, quantity=quantity)
+        if not self.cart:
+            raise ValueError("Cart is not initialized.")
+        
+        if quantity <= 0:
+            raise ValueError("Quantity must be a positive integer.")
+        
+        CartItem.objects.update_or_create(cart=self.cart, product=product, defaults={'quantity': quantity})
         
     def __len__(self):
         """
@@ -61,17 +61,16 @@ class CartManager:
         return 0
     
     def update(self, product, quantity):
-        if self.cart:
-            try:
-                cart_item = CartItem.objects.get(cart=self.cart, product=product)
-                if quantity > 0:
-                    cart_item.quantity = quantity
-                    cart_item.save()
-                else:
-                    cart_item.delete()
-            except CartItem.DoesNotExist:
-                if quantity > 0:
-                    CartItem.objects.create(cart=self.cart, product=product, quantity=quantity)
+        if not self.cart:
+            raise ValueError("Cart is not initialized.")
+        if quantity <= 0:
+            raise ValueError("Quantity must be a positive integer.")
+        cart_item, created = CartItem.objects.get_or_create(cart=self.cart, product=product)
+        if quantity > 0:
+            cart_item.quantity = quantity
+            cart_item.save()
+        else:
+            cart_item.delete()
     
     def delete(self, product):
         if self.cart:
@@ -80,5 +79,8 @@ class CartManager:
                 cart_item.delete()
             except CartItem.DoesNotExist:
                 pass
+            
+    def clear(self):
+        self.cart.cartitem_set.all().delete()
             
         

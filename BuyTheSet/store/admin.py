@@ -4,10 +4,10 @@ from django.contrib.admin.options import InlineModelAdmin
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.http import HttpRequest
-from .models import Category, Customer,  Product, Order, Profile
+from .models import Category, Product, Profile
 
 
-admin.site.register([Category, Customer, Order])
+admin.site.register([Category])
 
 
 class ProfileInLine(admin.StackedInline):

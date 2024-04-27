@@ -8,14 +8,17 @@ class ShippingAddressAdmin(admin.ModelAdmin):
     search_fields = ('user__username', 'full_name', 'email')
 
 
+class OrderItemInline(admin.TabularInline):
+    model = OrderItem
+    extra = 0
+    readonly_fields = ('product', 'quantity', 'price')
+    exclude = ('user',)
+
+
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'full_name', 'email', 'amount_paid', 'date_ordered')
     search_fields = ('user__username', 'full_name', 'email')
     date_hierarchy = 'date_ordered'
+    inlines = [OrderItemInline]
     
-    
-@admin.register(OrderItem)
-class OrderItemAdmin(admin.ModelAdmin):
-    list_display = ('order', 'product', 'user', 'quantity', 'price')
-    search_fields = ('order__id', 'product__name', 'user__username')
