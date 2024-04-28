@@ -7,11 +7,52 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
 from django.db.models import Q
+from payments.models import Order, ShippingAddress
 from .forms import SignUpForm, UpdateUserform, ChangePasswordForm, UserInfoForm
 from .models import Product, Category, Profile
-import logging
 
-logger = logging.getLogger(__name__)
+
+def register_user(request):
+    if request.method == 'POST':
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            try:
+                user = form.save()
+                email = form.cleaned_data['email']
+                password = form.cleaned_data['password1']
+                # Link existing orders and shipping addresses with the same email to the new user
+                ShippingAddress.objects.filter(email=email).update(user=user)
+                Order.objects.filter(shipping_address__email=email).update(user=user)
+                # login user
+                user = authenticate(username=user.username, password=password)
+                login(request, user)
+                messages.success(request, "You have registered and logged in successfully")
+                return redirect('update_info')
+            except IntegrityError:
+                messages.error(request, "Username already exists", "warning")
+                return render(request,'register.html', {'form': form})
+        else:
+            messages.error(request, "Please correct the error below.", "warning")
+            return render(request, 'register.html', {'form': form})
+    else:  
+        form = SignUpForm()    
+    return render(request, 'register.html', {'form': form})
+
+
+def login_user(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            messages.success(request, f"You have successfully logged in as {user.username}")
+            return redirect('home')
+        else:
+            messages.error(request,  'Username or Password is incorrect', "danger")
+            return redirect('login')
+    else:
+        return render(request, 'login.html', )
 
 
 def update_info(request):
@@ -80,6 +121,28 @@ def update_user(request):
         return redirect('login')
     
     
+def order_history(request):
+    if not request.user.is_authenticated:
+        messages.error(request, "You must be logged in to view your order history.", "danger")
+        return redirect('home')
+    orders = Order.objects.filter(user=request.user).order_by("-date_ordered")
+    context = {
+        "orders": orders
+    }
+    return render(request, "order_history.html", context)
+
+
+def order_details(request, order_id):
+    if not request.user.is_authenticated:
+        messages.error(request, "You must be logged in to view your order.")
+        return redirect('home')
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    context = {
+        "order": order,
+    }
+    return render(request, "order_details.html", context)
+    
+    
 def category_summary(request):
     categories = Category.objects.all()
     context = {
@@ -124,20 +187,7 @@ def about(request):
     return render(request, 'about.html')
 
 
-def login_user(request):
-    if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            messages.success(request, f"You have successfully logged in as {user.username}")
-            return redirect('home')
-        else:
-            messages.error(request,  'Username or Password is incorrect', "danger")
-            return redirect('login')
-    else:
-        return render(request, 'login.html', )
+
 
 
 def logout_user(request):
@@ -146,32 +196,7 @@ def logout_user(request):
     return redirect('home')
 
 
-def register_user(request):
-    if request.method == 'POST':
-        form = SignUpForm(request.POST)
-        if form.is_valid():
-            logger.debug("Form is valid, proceed to save user")
-            try:
-                form.save()
-                logger.debug("Form saved, login user")
-                username = form.cleaned_data['username']
-                password = form.cleaned_data['password1']
-                # login user
-                user = authenticate(username=username, password=password)
-                login(request, user)
-                messages.success(request, "You have registered and logged in successfully")
-                return redirect('update_info')
-            except IntegrityError:
-                logger.debug("Username already exists")
-                messages.error(request, "Username already exists", "warning")
-                return render(request,'register.html', {'form': form})
-        else:
-            logger.debug("Form validation failed: %s", form.errors)
-            messages.error(request, "Please correct the error below.", "warning")
-            return render(request, 'register.html', {'form': form})
-    else:  
-        form = SignUpForm()    
-    return render(request, 'register.html', {'form': form})
+
 
 
 def product_search(request):

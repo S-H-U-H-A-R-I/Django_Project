@@ -1,0 +1,65 @@
+{% extends 'store/base.html' %}
+
+{% block content %}
+<header class="bg-dark py-5">
+    <div class="container px-4 px-lg-5 my-5">
+      <div class="text-center text-white">
+        <h1 class="display-4 fw-bolder">Order History</h1>
+      </div>
+    </div>
+</header>
+<div class="container my-5">
+    {% for order in orders %}
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="mb-3">
+                <div class="d-flex justify-content-between">
+                    <h5 class="d-inline-block">Order ID: {{ order.id }}</h5>
+                    <a href="{% url 'order_details' order.id %}">Edit order</a>
+                </div>
+                <div class="d-md-flex mt-2">
+                    <div>
+                        <p class="mb-0 me-4"><strong>Date of order:</strong></p>
+                        <p>{{ order.date_ordered|date:"F d, Y" }}</p>
+                    </div>
+                    <div>
+                        <p class="mb-0 me-4"><strong>Total cost:</strong></p>
+                        <p>R{{ order.amount_paid }}</p>
+                    </div>
+                    <div>
+                        <p class="mb-0 me-4"><strong>Payment status:</strong></p>
+                        <p>Paid</p>
+                    </div>
+                    <div>
+                        <p class="mb-0"><strong>Delivery date:</strong></p>
+                        <p>May 20, 2023</p>
+                    </div>
+                </div>
+            </div>
+            <div class="d-none d-md-block">
+                <div class="row g-1">
+                    {% for item in order.orderitem_set.all|slice:":6" %}
+                    <div class="col-md-2">
+                        <div class="text-center">                    
+                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="img-fluid mb-2" style="max-height: 100px; border-radius: 3px;">
+                            <p class="mb-0 text-truncate">{{ item.product.name }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% if order.orderitem_set.count > 6 %}
+                    <div class="col-12 text-center mt-2">
+                        <a href="{% url 'order_details' order.id %}">See all items</a>  
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="d-md-none text-center mt-3">
+                <a href="{% url 'order_details' order.id %}">View Order Details</a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <p>No orders found.</p>
+    {% endfor %}
+</div>
+{% endblock %}

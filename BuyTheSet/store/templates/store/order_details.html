@@ -1,0 +1,49 @@
+{% extends 'store/base.html' %}
+
+{% block content %}
+<header class="bg-dark py-5">
+    <div class="container px-4 px-lg-5 my-5">
+        <div class="text-center text-white">
+            <h1 class="display-4 fw-bolder">Order Details</h1>
+        </div>
+    </div>
+</header>
+<div class="container">
+  <h2>Order Details</h2>
+  <div class="card">
+    <div class="card-body">
+      <h5 class="card-title">Order #{{ order.id }}</h5>
+      <p class="card-text">
+        <strong>Order Date:</strong> {{ order.date_ordered }}<br>
+        <strong>Customer:</strong> {{ order.user.full_name }}<br>
+        <strong>Email:</strong> {{ order.user.email }}<br>
+        <strong>Shipping Address:</strong><br>
+        {{ order.shipping_address|linebreaks }}
+      </p>
+      <h6 class="card-subtitle mb-2 text-muted">Order Items</h6>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in order.items.all %}
+          <tr>
+            <td>{{ item.product.name }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.product.price }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <p class="card-text">
+        <strong>Total Amount:</strong> {{ order.amount_paid }}
+      </p>
+      <a href="#" class="btn btn-primary">Edit Order</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

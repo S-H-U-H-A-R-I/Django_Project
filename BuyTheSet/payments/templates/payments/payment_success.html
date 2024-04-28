@@ -1,11 +1,20 @@
 {% extends 'store/base.html' %}
 {% block content %}
-<header class="bg-dark py-5">
-    <script src="https://js.paystack.co/v2/inline.js"></script>
-    <div class="container px-4 px-lg-5 my-5">
-        <div class="text-center text-white">
-            <h1 class="display-4 fw-bolder">Thank you for your purchase!</h1>
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow-lg">
+                <div class="card-body text-center">
+                    <i class="bi bi-check-circle-fill text-success display-1 mb-3"></i>
+                    <h1 class="mb-3">Thank You!</h1>
+                    <p class="lead mb-4">Your order has been placed successfully.</p>
+                    <p>You will receive an order confirmation email with details of your order.</p>
+                    <div class="my-4">
+                        <a href="{% url 'home' %}" class="btn btn-outline-primary btn-sm">Continue Shopping</a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-</header>
+</div>
 {% endblock %}

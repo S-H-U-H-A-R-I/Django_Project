@@ -5,6 +5,7 @@ from django.contrib.auth.signals import user_logged_in
 from django.dispatch import receiver
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
+from django.template.loader import render_to_string
 from .models import Cart, CartItem
 from .cart import CartManager
 from .serializers import CartSerializer
@@ -32,9 +33,13 @@ def cart_summary(request):
     cart = CartManager(request)
     cart_items = CartSerializer.get_cart_items(cart.cart)
     cart_total = CartSerializer.get_cart_total(cart.cart)
+    alert_message = request.GET.get('alert_message')
+    alert_type = request.GET.get('alert_type')
     context = {
         'cart_items': cart_items,
         'cart_total': cart_total,
+        'alert_message': alert_message,
+        'alert_type': alert_type,
     }
     return render(request, 'cart_summary.html', context)
 
@@ -44,11 +49,13 @@ def cart_add(request):
         cart = CartManager(request)
         product_id = int(request.POST.get('product_id'))
         product_qty = int(request.POST.get("product_qty"))
-        product = get_object_or_404(Product, id=product_id)
         try:
+            product = Product.objects.get(id=product_id)
             CartSerializer.update_item_quantity(cart.cart, product_id, product_qty)
-            item_quantity = CartSerializer.get_item_quantity(cart.cart, product_id)
-            response = {'success': True, 'qty': item_quantity, 'product_name': product.name}
+            success_message = f'{product.name} has been added to your cart.'
+            response = {'success': True, 'product_name': product.name, 'message': success_message}
+        except Product.DoesNotExist:
+            response = {'success': False, 'error': 'Product does not exist.'}
         except Exception as e:
             response = {'success': False, 'error': str(e)}
         return JsonResponse(response)
@@ -60,8 +67,8 @@ def cart_delete(request):
         try:
             product = Product.objects.get(id=product_id)
             CartSerializer.remove_item(cart.cart, product_id)
-            messages.success(request, f'{product.name} has been removed from your cart.')
-            response = {'success': True}
+            success_message = f'{product.name} has been removed from your cart.'
+            response = {'success': True, 'message': success_message}
         except Product.DoesNotExist:
             response = {'success': False, 'error': 'Product does not exist.'}
         except Exception as e:
@@ -77,8 +84,8 @@ def cart_update(request):
             product_qty = int(request.POST.get("product_qty"))
             product = Product.objects.get(id=product_id)
             CartSerializer.update_item_quantity(cart.cart, product_id, product_qty)
-            messages.success(request, f'{product.name} has been updated successfully.', 'success')
-            response = JsonResponse({'success': True})
+            success_message = f'{product.name} has been updated.'
+            response = JsonResponse({'success': True, 'message': success_message})
             return response
         except ValueError:
             return JsonResponse({'success': False, 'error': 'Invalid quantity.'}, status=400)

@@ -57,6 +57,7 @@
   <a href="{% url 'home' %}" class="btn btn-primary">Continue Shopping</a>
   {% endif %}
 </div><br />
+
 <script>
   // Update the cart
   $(document).ready(function () { 
@@ -73,7 +74,8 @@
           csrfmiddlewaretoken: '{{ csrf_token }}',
         },
         success: function (response) {
-          if (response.success) {
+            if (response.success) {
+            displayAlert(response.message, 'success')
             $.ajax({
                 type: 'GET',
                 url: '{% url "cart_summary" %}',
@@ -85,9 +87,9 @@
                     console.log(xhr.status + ": " + xhr.responseText);
                 }
             });
-          } else {
-            alert(response.error)
-          }
+            } else {
+            displayAlert(response.error, 'danger')
+            }
         },
         error: function (xhr, errmsg, err) {
           console.log(xhr.status + ": " + xhr.responseText);
@@ -99,7 +101,7 @@
   $(document).ready(function () { // Ensure the DOM is fully loaded
     $('.delete-product').on('click', function (e) {
       e.preventDefault();
-      // Grab the product ID and quantity
+      // Grab the product ID
       var productId = $(this).data('index');
       $.ajax({
         type: 'POST',
@@ -107,13 +109,16 @@
         data: {
           product_id: productId,
           csrfmiddlewaretoken: '{{ csrf_token }}',
+          action: 'post'
         },
         success: function (response) {
-          if (response.success) {
-            location.reload();
-          } else {
-            alert(response.error)
-          }
+            if (response.success) {
+                var alertMessage = encodeURIComponent(response.message);
+                var alertType = 'success';
+                location.href = location.pathname + '?alert_message=' + alertMessage + '&alert_type=' + alertType;
+            } else {
+                displayAlert(response.error, 'danger');
+            }
         },
         error: function (xhr, errmsg, err) {
           console.log(xhr.status + ": " + xhr.responseText);
@@ -122,4 +127,13 @@
     });
   });
 </script>
+{% if alert_message and alert_type %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var alertMessage = "{{ alert_message|escapejs }}";
+        var alertType = "{{ alert_type|escapejs }}";
+        displayAlert(alertMessage, alertType)
+    })
+</script>
+{% endif %}
 {% endblock content %}

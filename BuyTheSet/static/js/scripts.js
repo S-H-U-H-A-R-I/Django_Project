@@ -1,41 +1,40 @@
-// Function to display the alert message
 function displayAlert(message, alertType) {
-    // Create the alert element
-    const alert = document.createElement('div');
-    alert.classList.add('alert', `alert-${alertType}`, 'alert-dismissible', 'fade', 'show', 'cart-message', 'd-flex', 'justify-content-between', 'align-items-center', 'position-fixed', 'end-0', 'm-3', 'rounded');
-    alert.setAttribute('role', 'alert');
-
-    // Set the alert message
-    const messageElement = document.createElement('p');
-    messageElement.classList.add('mb-0', 'flex-grow-1');
-    messageElement.textContent = message;
-
-    // Create the close button
-    const closeButton = document.createElement('button');
-    closeButton.classList.add('btn-close');
-    closeButton.setAttribute('type', 'button');
-    closeButton.setAttribute('data-bs-dismiss', 'alert');
-    closeButton.setAttribute('aria-label', 'Close');
-
-    closeButton.addEventListener('click', () => {
-        alert.remove();
-    })
-
-    // Append the message and close button to the alert
-    alert.appendChild(messageElement);
-    alert.appendChild(closeButton);
-
-    // Append the alert to the page
     const alertContainer = document.getElementById('alert-container');
-    if (alertContainer) {
-        alertContainer.appendChild(alert);
-    }
+    const alertElement = document.createElement('div');
+    alertElement.classList.add('alert', `alert-${alertType}`, 'cart-message', 'pt-2', 'pb-3');
+    alertElement.setAttribute('role', 'alert');
+    alertElement.setAttribute('data-bs-autohide', 'true');
+    alertElement.innerHTML = `
+        <p class="mb-0">${message}</p>
+        <div class="progress position-absolute bottom-0 start-0 end-0 mx-3 mb-1" style="height: 5px;">
+            <div class="progress-bar custom-bg-${alertType}" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+    `;
+    alertContainer.appendChild(alertElement);
 
-    // Remove the alert after 3 seconds
-    setTimeout(() => {
-        alert.classList.remove('show');
-    }, 3000);
+    // Start the progress bar animation
+    const progressBar = alertElement.querySelector('.progress-bar');
+    let width = 100;
+    const animationDuration = 5000;
+    const animationInterval = 30;
+    const animationStep = (100 / animationDuration) * animationInterval;
+
+    const animationTimer = setInterval(() => {
+        if (width <= 0) {
+            clearInterval(animationTimer);
+            alertElement.remove();
+        } else {
+            width -= animationStep;
+            progressBar.style.width = width + '%';
+        }
+    }, animationInterval);
+
+    // Remove the alert when the user navigatest away from the page
+    window.addEventListener('beforeunload', () => {
+        alertElement.remove();
+    });
 }
+
 
 
 

@@ -1,4 +1,3 @@
-import requests
 from icecream import ic
 from django.conf import settings
 from django.http import JsonResponse
@@ -8,7 +7,7 @@ from .models import ShippingAddress, Order, OrderItem
 from .serializers import ShippingAddressSerializer, PaymentSerializer
 from cart.cart import CartManager
 from store.models import Product
-
+        
         
 def checkout(request):
     user = request.user

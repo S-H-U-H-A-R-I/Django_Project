@@ -1,3 +1,7 @@
+a {
+    text-decoration: none ;
+}
+
 .error-message {
     color: red;
     margin-top: 5px;
@@ -5,4 +9,33 @@
 
 .error-field {
     border-color: red;
+}
+
+.cart-message {
+    z-index: 9999;
+}
+
+.custom-bg-success {
+  background-color: #b1dfbb;
+}
+
+.custom-bg-info {
+  background-color: #bee5eb;
+}
+
+.custom-bg-warning {
+  background-color: #c9bfa2;
+}
+
+.custom-bg-danger {
+  background-color: #ce9ea2;
+}
+
+.progress {
+    height: 5px;
+    background-color: transparent;
+}
+
+.progress-bar {
+    transition: width 0.03s linear;
 }

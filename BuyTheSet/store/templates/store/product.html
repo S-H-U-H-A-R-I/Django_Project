@@ -1,6 +1,5 @@
 {% extends 'store/base.html' %} {% block content %}
 <br />
-<div id="alert-container"></div>
 <div class="container">
   <div class="card mb-3">
     <div class="row g-0">
@@ -41,16 +40,7 @@
 </div>
 
 <script>
-  function handleAjaxResponse(response) {
-    if (response.success) {
-      const productName = response.product_name;
-      console.log(response);
-      displayAlert(`${productName} added to cart successfully`, 'success');
-      $("#cart_quantity").html(response.qty);
-    } else {
-      displayAlert(`Error adding product to cart: ${response.error}`, 'danger');
-    }
-  }
+
 
   // Check if button with id="add-cart" is pressed
   $(document).on('click', '#add-cart', function (e) {
@@ -67,8 +57,11 @@
         action: 'post'
       },
       success: function (response) {
-        handleAjaxResponse(response);
-        // update id="cart_quantity" element with new value from JSON object returned by server
+        if (response.success) {
+            displayAlert(response.message, 'success');
+        } else {
+            displayAlert(response.error, 'danger');
+        }
       },
       error: function (xhr, status, error) {
         console.error(error);

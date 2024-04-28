@@ -17,22 +17,13 @@
     <!-- Jquery -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <!-- Core theme CSS (includes Bootstrap) -->
-    <link href="{% static 'css/styles.css' %}?v=1.1" rel="stylesheet" />
-    <link href="{% static 'css/custom-styles.css' %}?v=1.1" rel="stylesheet" />
+    <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
+    <link href="{% static 'css/custom-styles.css' %}" rel="stylesheet" />
   </head>
 
   <body>
     {% include 'store/navbar.html' %}
-    {% if messages %}
-      <div id="alert-container" class="position-fixed end-0 m-3">
-        {% for message in messages %}
-          <div class="alert alert-{{ message.tags }} alert-dismissible fade show cart-message d-flex justify-content-between align-items-center rounded" role="alert">
-            <p class="mb-0 flex-grow-1">{{ message }}</p>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-          </div>
-        {% endfor %}
-      </div>
-    {% endif %}
+    <div id="alert-container" class="position-fixed end-0 m-3" style="z-index: 9999;"></div>
     <!-- Block content -->
     {% block content %}
 
@@ -40,7 +31,7 @@
     <!-- Footer -->
     <footer class="py-5 bg-dark">
       <div class="container">
-        <p class="m-0 text-center text-white">Copyright &copy; Your Website 2023</p>
+        <p class="m-0 text-center text-white">Copyright &copy; BuyTheSet 2024</p>
       </div>
     </footer>
     <!-- Bootstrap core JS -->
