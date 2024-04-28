@@ -33,13 +33,9 @@ def cart_summary(request):
     cart = CartManager(request)
     cart_items = CartSerializer.get_cart_items(cart.cart)
     cart_total = CartSerializer.get_cart_total(cart.cart)
-    alert_message = request.GET.get('alert_message')
-    alert_type = request.GET.get('alert_type')
     context = {
         'cart_items': cart_items,
         'cart_total': cart_total,
-        'alert_message': alert_message,
-        'alert_type': alert_type,
     }
     return render(request, 'cart_summary.html', context)
 
@@ -61,10 +57,10 @@ def cart_add(request):
         return JsonResponse(response)
 
 def cart_delete(request):
-    if request.method == 'POST':
-        cart = CartManager(request)
-        product_id = int(request.POST.get('product_id'))
+    cart = CartManager(request)
+    if request.POST.get('action') == 'post':
         try:
+            product_id = int(request.POST.get('product_id'))
             product = Product.objects.get(id=product_id)
             CartSerializer.remove_item(cart.cart, product_id)
             success_message = f'{product.name} has been removed from your cart.'

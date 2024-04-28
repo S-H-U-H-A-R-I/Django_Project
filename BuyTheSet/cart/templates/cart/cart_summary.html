@@ -113,9 +113,7 @@
         },
         success: function (response) {
             if (response.success) {
-                var alertMessage = encodeURIComponent(response.message);
-                var alertType = 'success';
-                location.href = location.pathname + '?alert_message=' + alertMessage + '&alert_type=' + alertType;
+                window.location.href = '{% url "cart_summary" %}';
             } else {
                 displayAlert(response.error, 'danger');
             }
@@ -127,13 +125,4 @@
     });
   });
 </script>
-{% if alert_message and alert_type %}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var alertMessage = "{{ alert_message|escapejs }}";
-        var alertType = "{{ alert_type|escapejs }}";
-        displayAlert(alertMessage, alertType)
-    })
-</script>
-{% endif %}
 {% endblock content %}

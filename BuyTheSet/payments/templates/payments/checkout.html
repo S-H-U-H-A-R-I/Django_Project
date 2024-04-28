@@ -55,6 +55,18 @@
     </div>
 </div>
 <script>
+    // Get the purchased product details and assign it to a JavaScript variable
+    var purchasedProducts = [];
+    {% for item in cart_items_data %}
+        purchasedProducts.push({
+            'name': '{{ item.name }}',
+            'quantity': {{ item.quantity }},
+            'price': {{ item.price }},
+            'total': {{ item.total }},
+        });
+    {% endfor %}
+</script>
+<script>
     function saveShippingInfo(){
         var form = document.getElementById('shipping-form');
         var formData = new FormData(form);
@@ -132,7 +144,29 @@
             lastname: lastName,
             phone: phone,
             onSuccess: (response) => {
-                window.location.href = "{% url 'payment_success' %}";;
+                var products = JSON.stringify(purchasedProducts)
+                // Make an AJAX request to save the order on the server
+                $.ajax({
+                    type: "POST",
+                    url: '{% url "save_order" %}',
+                    data: {
+                        'email': email,
+                        'first_name': firstName,
+                        'last_name': lastName,
+                        'amount': '{{ cart_total|stringformat:"d" }}00',
+                        'products': products,
+                        'shipping_address': $('#id_address1').val() + ', ' + $('#id_address2').val(),
+                        'csrfmiddlewaretoken': '{{ csrf_token }}',
+                    },
+                    success: (serverResponse) => {
+                        // Redirect the user to the payment success page
+                        window.location.href = "{% url 'payment_success' %}";
+                    },
+                    error: (xhr, status, error) => {
+                        // Handle error here
+                        console.error('Error saving order:', error);
+                    }
+                })
             },
             onCancel: () => {
                 // user closed popup

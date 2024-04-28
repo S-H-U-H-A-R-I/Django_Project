@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
 from django.db.models import Q
-from payments.models import Order, ShippingAddress
+from payments.models import Order, OrderItem, ShippingAddress
 from .forms import SignUpForm, UpdateUserform, ChangePasswordForm, UserInfoForm
 from .models import Product, Category, Profile
 
@@ -20,9 +20,14 @@ def register_user(request):
                 user = form.save()
                 email = form.cleaned_data['email']
                 password = form.cleaned_data['password1']
-                # Link existing orders and shipping addresses with the same email to the new user
-                ShippingAddress.objects.filter(email=email).update(user=user)
-                Order.objects.filter(shipping_address__email=email).update(user=user)
+                # Link existing shipping addresses with the same email to the new user
+                shipping_addresses = ShippingAddress.objects.filter(email=email)
+                if shipping_addresses.exists():
+                    shipping_addresses.update(user=user)
+                # Link existing orders with the same email to the new user
+                orders = Order.objects.filter(email=email)
+                if orders.exists():
+                    orders.update(user=user)
                 # login user
                 user = authenticate(username=user.username, password=password)
                 login(request, user)
@@ -169,7 +174,6 @@ def category(request, foo):
         return redirect('home')
     
 
-
 def product(request, pk):
     product = get_object_or_404(Product, id=pk)
     return render(request, 'product.html', {'product': product})
@@ -187,16 +191,10 @@ def about(request):
     return render(request, 'about.html')
 
 
-
-
-
 def logout_user(request):
     logout(request)
     messages.success(request, "You have successfully logged out.")
     return redirect('home')
-
-
-
 
 
 def product_search(request):
