@@ -1,5 +1,6 @@
 import html
 import json
+import re
 from decimal import Decimal
 from icecream import ic
 from django.conf import settings
@@ -49,7 +50,24 @@ def save_shipping_info(request):
     if request.method == 'POST':
         is_collect = request.POST.get('is_collect') == "True"
         if is_collect:
-            return JsonResponse({'success': True})
+            # Validate required fields
+            required_fields = ['full_name', 'email', 'phone_number']
+            errors = {}
+            for field in required_fields:
+                if not request.POST.get(field):
+                    errors[field] = f'{field.replace("_", " ").capitalize()} is required.'
+            # Validate email
+            email = request.POST.get('email')
+            if email and not re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', email):
+                errors['email'] = 'Invalid email address.'
+            # Validate phone number
+            phone_number = request.POST.get('phone_number')
+            if phone_number and not re.match(r'^\+?1?\d{9,15}$', phone_number):
+                errors['phone_number'] = 'Invalid phone number.'
+            if errors:
+                return JsonResponse({'success': False, 'errors': errors})
+            else:
+                return JsonResponse({'success': True})
         else:
             form = ShippingAddressForm(request.POST)
             if form.is_valid():
