@@ -3,8 +3,9 @@ import json
 from decimal import Decimal
 from icecream import ic
 from django.conf import settings
+from django.db import transaction
 from django.http import JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from .forms import PaymentForm, ShippingAddressForm
 from .models import ShippingAddress, Order, OrderItem
@@ -56,6 +57,19 @@ def save_shipping_info(request):
     return JsonResponse({'success': False, 'errors': 'Invalid request'})
     
 
+def check_product_availability(request):
+    if request.method == 'POST':
+        products_data = json.loads(request.POST.get('products'))
+        for product_data in products_data:
+            product_name = html.unescape(product_data['name'])
+            quantity = product_data['quantity']
+            product = get_object_or_404(Product, name=product_name)
+            if product.quantity < quantity:
+                return JsonResponse({'success': False, 'error': f'Insufficient quantity for product: {product_name}'})
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False, 'error': 'Invalid request'})
+
+
 @csrf_exempt
 def save_order(request):
     if request.method == 'POST':
@@ -65,31 +79,38 @@ def save_order(request):
         amount = request.POST.get('amount')
         products_data = json.loads(request.POST.get('products'))
         shipping_address = request.POST.get('shipping_address', '')
-        # Create a new Order instance
-        order = Order.objects.create(
-            user=request.user if request.user.is_authenticated else None,
-            full_name=f'{first_name} {last_name}',
-            email=email,
-            shipping_address=shipping_address,
-            amount_paid=Decimal(amount) / 100
-        )
-        # Create OrderItem instances for each purchased product
-        for product_data in products_data:
-            product_name = html.unescape(product_data['name'])
-            quantity = product_data['quantity']
-            price = product_data['price']
-            total = product_data['total']
-            # Retrieve the corresponding Product instance based on the product name
-            product = Product.objects.get(name=product_name)
-            OrderItem.objects.create(
-                order=order,
-                product=product,
-                quantity=quantity,
-                price=price,
+        
+        with transaction.atomic():
+            # Create a new Order instance
+            order = Order.objects.create(
                 user=request.user if request.user.is_authenticated else None,
+                full_name=f'{first_name} {last_name}',
+                email=email,
+                shipping_address=shipping_address,
+                amount_paid=Decimal(amount) / 100
             )
-        cart = CartManager(request)
-        cart.cart.delete()
+            # Create OrderItem instances for each purchased product
+            for product_data in products_data:
+                product_name = html.unescape(product_data['name'])
+                quantity = product_data['quantity']
+                price = product_data['price']
+                total = product_data['total']
+                # Retrieve the corresponding Product instance based on the product name
+                product = get_object_or_404(Product, name=product_name)
+                if product.quantity >= quantity:
+                    product.quantity -= quantity
+                    product.save()
+                else:
+                    return JsonResponse({'success': False, 'errors': 'Insufficient quantity for product.'})
+                OrderItem.objects.create(
+                    order=order,
+                    product=product,
+                    quantity=quantity,
+                    price=price,
+                    user=request.user if request.user.is_authenticated else None,
+                )
+            cart = CartManager(request)
+            cart.cart.delete()
         return JsonResponse({'success': True})
     return JsonResponse({'success': False, 'errors': 'Invalid request'})
 

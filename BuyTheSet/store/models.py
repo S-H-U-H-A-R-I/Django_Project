@@ -43,10 +43,12 @@ class Category(models.Model):
 
 class Product(models.Model):
     name  = models.CharField(max_length=255, blank=False)
+    cost_price =  models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     price =  models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     description = models.TextField(blank=True)
     image = models.ImageField(upload_to='uploads/products/', default='no-image.jpg')
+    quantity = models.PositiveIntegerField(default=1)
     
     is_sale = models.BooleanField(default=False)
     sale_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
@@ -57,4 +59,11 @@ class Product(models.Model):
         
     def __str__(self):
         return self.name
+    
+    @property
+    def profit(self):
+        if self.is_sale:
+            return self.sale_price - self.cost_price
+        else:
+            return self.price - self.cost_price
     

@@ -133,44 +133,63 @@
         var lastName = paystackForm.querySelector('input[name="last_name"]').value;
         var phone = paystackForm.querySelector('input[name="phone"]').value;
 
-        const handler = new PaystackPop();
-        handler.newTransaction({
-            key: '{{ paystack_public_key }}',
-            email: email,
-            amount: '{{ cart_total|stringformat:"d" }}00',
-            currency: "ZAR",
-            ref: ''+Math.floor((Math.random() * 1000000000) +1),
-            firstname: firstName,
-            lastname: lastName,
-            phone: phone,
-            onSuccess: (response) => {
-                var products = JSON.stringify(purchasedProducts)
-                // Make an AJAX request to save the order on the server
-                $.ajax({
-                    type: "POST",
-                    url: '{% url "save_order" %}',
-                    data: {
-                        'email': email,
-                        'first_name': firstName,
-                        'last_name': lastName,
-                        'amount': '{{ cart_total|stringformat:"d" }}00',
-                        'products': products,
-                        'shipping_address': $('#id_address1').val() + ', ' + $('#id_address2').val(),
-                        'csrfmiddlewaretoken': '{{ csrf_token }}',
-                    },
-                    success: (serverResponse) => {
-                        // Redirect the user to the payment success page
-                        window.location.href = "{% url 'payment_success' %}";
-                    },
-                    error: (xhr, status, error) => {
-                        // Handle error here
-                        console.error('Error saving order:', error);
-                    }
-                })
+        // Check for product availability before initiating payment
+        $.ajax({
+            type: "POST",
+            url: '{% url "check_product_availability" %}',
+            data: {
+                'products': JSON.stringify(purchasedProducts),
+                'csrfmiddlewaretoken': '{{ csrf_token }}',
             },
-            onCancel: () => {
-                // user closed popup
+            success: (response) => {
+                if (response.success) {
+                    // Proceed with Paystack payment
+                    const handler = new PaystackPop();
+                    handler.newTransaction({
+                        key: '{{ paystack_public_key }}',
+                        email: email,
+                        amount: '{{ cart_total|stringformat:"d" }}00',
+                        currency: "ZAR",
+                        ref: ''+Math.floor((Math.random() * 1000000000) +1),
+                        firstname: firstName,
+                        lastname: lastName,
+                        phone: phone,
+                        onSuccess: (response) => {
+                            var products = JSON.stringify(purchasedProducts)
+                            // Make an AJAX request to save the order on the server
+                            $.ajax({
+                                type: "POST",
+                                url: '{% url "save_order" %}',
+                                data: {
+                                    'email': email,
+                                    'first_name': firstName,
+                                    'last_name': lastName,
+                                    'amount': '{{ cart_total|stringformat:"d" }}00',
+                                    'products': products,
+                                    'shipping_address': $('#id_address1').val() + ', ' + $('#id_address2').val(),
+                                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                                },
+                                success: (serverResponse) => {
+                                    // Redirect the user to the payment success page
+                                    window.location.href = "{% url 'payment_success' %}";
+                                },
+                                error: (xhr, status, error) => {
+                                    // Handle error here
+                                    console.error('Error saving order:', error);
+                                }
+                            })
+                        },
+                        onCancel: () => {
+                            // user closed popup
+                        },
+                    });
+                } else {
+                    displayAlert(response.error, 'danger');
+                }
             },
+            error: (xhr, status, error) => {
+                console.error('Error checking product availability:', error);
+            }
         });
     }
 </script>

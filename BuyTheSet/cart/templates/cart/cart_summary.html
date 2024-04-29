@@ -1,4 +1,4 @@
-{% extends 'store/base.html' %} {% load static %} {% block content %}
+{% extends 'store/base.html' %} {% load custom_filters %} {% block content %}
 <!-- Header-->
 <header class="bg-dark py-5">
   <div class="container px-4 px-lg-5 my-5">
@@ -33,10 +33,9 @@
             </div>
             <div class="col-md-2">
               <select class="form-select form-select-sm" id="select{{item.product.id}}">
-                <option value="{{ item.quantity }}" selected>{{item.quantity}}</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
+                {% for i in item.product.quantity|range_to %}
+                <option value="{{i}}" {% if i == item.quantity %}selected{% endif %}>{{i}}</option>
+                {% endfor %}
               </select>
               <button type="button" data-index="{{item.product.id}}" class="btn btn-secondary update-cart">Update</button>
               <button type="button" data-index="{{item.product.id}}" class="btn btn-danger delete-product">Remove</button>

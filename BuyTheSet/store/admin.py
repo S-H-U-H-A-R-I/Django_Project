@@ -35,10 +35,14 @@ admin.site.register(User, UserAdmin)
 
 # Admin for Product with additional features
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'price', 'category', 'is_sale', 'sale_price')
+    list_display = ('name', 'cost_price', 'price', 'category', 'is_sale', 'sale_price', 'quantity', 'profit')
     list_filter = ('is_sale', 'category')
     search_fields = ('name', 'description')
-    list_editables = ('price', 'is_sale','sale_price')
+    list_editables = ('cost_price', 'price', 'is_sale', 'sale_price', 'quantity')
+    
+    def profit(self, obj):
+        return obj.profit
+    profit.short_description = 'Profit'
     
     
 admin.site.register(Product, ProductAdmin)

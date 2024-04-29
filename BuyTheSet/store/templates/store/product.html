@@ -1,4 +1,4 @@
-{% extends 'store/base.html' %} {% block content %}
+{% extends 'store/base.html' %} {% load custom_filters %}{% block content %}
 <br />
 <div class="container">
   <div class="card mb-3">
@@ -17,9 +17,9 @@
             </div>
             <div class="col-md-2">
               <select class="form-select form-select-sm" id="qty-cart">
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
+                {% for i in product.quantity|range_to %}
+                <option value="{{i}}">{{i}}</option>
+                {% endfor %}
               </select>
             </div>
           </div>
