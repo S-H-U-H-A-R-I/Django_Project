@@ -179,7 +179,6 @@ def product(request, pk):
     product = get_object_or_404(Product, id=pk)
     additional_images = ProductImage.objects.filter(product=product)
     images  = [product.image.url] + [f"{settings.MEDIA_URL}{image}" for image in additional_images.values_list('image', flat=True)]
-    ic(images)
     context = {
         "product": product,
         "images": images,
