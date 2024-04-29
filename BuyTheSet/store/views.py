@@ -1,5 +1,6 @@
 from icecream import ic
 from django.shortcuts import get_object_or_404, redirect, render
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
@@ -9,7 +10,7 @@ from django.db import IntegrityError
 from django.db.models import Q
 from payments.models import Order, OrderItem, ShippingAddress
 from .forms import SignUpForm, UpdateUserform, ChangePasswordForm, UserInfoForm
-from .models import Product, Category, Profile
+from .models import Product, Category, Profile, ProductImage
 
 
 def register_user(request):
@@ -176,7 +177,14 @@ def category(request, foo):
 
 def product(request, pk):
     product = get_object_or_404(Product, id=pk)
-    return render(request, 'product.html', {'product': product})
+    additional_images = ProductImage.objects.filter(product=product)
+    images  = [product.image.url] + [f"{settings.MEDIA_URL}{image}" for image in additional_images.values_list('image', flat=True)]
+    ic(images)
+    context = {
+        "product": product,
+        "images": images,
+    }
+    return render(request, 'product.html', context)
 
 
 def home(request):
