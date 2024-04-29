@@ -17,7 +17,7 @@ class OrderItemInline(admin.TabularInline):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'full_name', 'email', 'amount_paid', 'date_ordered')
+    list_display = ('id', 'user', 'full_name', 'email', 'amount_paid', 'date_ordered', 'is_collect')
     search_fields = ('user__username', 'full_name', 'email')
     date_hierarchy = 'date_ordered'
     inlines = [OrderItemInline]

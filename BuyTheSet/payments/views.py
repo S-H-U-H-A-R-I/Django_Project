@@ -47,13 +47,17 @@ def checkout(request):
     
 def save_shipping_info(request):
     if request.method == 'POST':
-        form = ShippingAddressForm(request.POST)
-        if form.is_valid():
-            ShippingAddressSerializer.save_shipping_address(form, request.user, request)
+        is_collect = request.POST.get('is_collect') == "True"
+        if is_collect:
             return JsonResponse({'success': True})
         else:
-            errors = {field: error[0] for field, error in form.errors.items()}
-            return JsonResponse({'success': False, 'errors': errors})
+            form = ShippingAddressForm(request.POST)
+            if form.is_valid():
+                ShippingAddressSerializer.save_shipping_address(form, request.user, request)
+                return JsonResponse({'success': True})
+            else:
+                errors = {field: error[0] for field, error in form.errors.items()}
+                return JsonResponse({'success': False, 'errors': errors})
     return JsonResponse({'success': False, 'errors': 'Invalid request'})
     
 
@@ -79,6 +83,7 @@ def save_order(request):
         amount = request.POST.get('amount')
         products_data = json.loads(request.POST.get('products'))
         shipping_address = request.POST.get('shipping_address', '')
+        is_collect = request.POST.get('is_collect') == 'true'
         
         with transaction.atomic():
             # Create a new Order instance
@@ -86,8 +91,9 @@ def save_order(request):
                 user=request.user if request.user.is_authenticated else None,
                 full_name=f'{first_name} {last_name}',
                 email=email,
-                shipping_address=shipping_address,
-                amount_paid=Decimal(amount) / 100
+                shipping_address='' if is_collect else shipping_address,
+                amount_paid=Decimal(amount) / 100,
+                is_collect=is_collect,
             )
             # Create OrderItem instances for each purchased product
             for product_data in products_data:

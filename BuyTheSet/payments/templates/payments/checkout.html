@@ -37,12 +37,18 @@
             </div>
         </div>
         <div class="col-md-4">
-            <h4>Shipping Information</h4>
-            <form id="shipping-form" action="{% url 'checkout' %}" method="POST">
+            <h4>Order Information</h4>
+            <form id="order-form" action="{% url 'save_shipping_info' %}" method="POST">
                 {% csrf_token %}
-                {{ form.as_p }}
-                <div class="container my-3">
-                    <button type="button" class="btn btn-primary" onclick="saveShippingInfo()">Pay with Paystack</button>
+                <div id="shipping-fields">
+                    {{ form.as_p }}
+                </div>
+                <div class="container my-3 d-flex justify-content-between">
+                    <button type="button" class="btn btn-primary" onclick="saveOrderInfo()">Pay with Paystack</button>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="is_collect" id="is-collect" value="True">
+                        <label class="form-check-label" for="is-collect">Collect</label>
+                    </div>
                 </div>
             </form>
             <form id="paystack-form">
@@ -67,10 +73,21 @@
     {% endfor %}
 </script>
 <script>
-    function saveShippingInfo(){
-        var form = document.getElementById('shipping-form');
-        var formData = new FormData(form);
+    document.getElementById('is-collect').addEventListener('change', function(){
+        var address1Field = document.getElementById('id_address1').parentNode;
+        var address2Field = document.getElementById('id_address2').parentNode;
+        if (this.checked) {
+            address1Field.classList.add('d-none');
+            address2Field.classList.add('d-none');
+        } else {
+            address1Field.classList.remove('d-none');
+            address2Field.classList.remove('d-none');
+        };
+    });
 
+    function saveOrderInfo(){
+        var form = document.getElementById('order-form');
+        var formData = new FormData(form);
         // Clear previous error messages and field highlighting
         clearErrors()
 
@@ -132,7 +149,8 @@
         var firstName = paystackForm.querySelector('input[name="first_name"]').value;
         var lastName = paystackForm.querySelector('input[name="last_name"]').value;
         var phone = paystackForm.querySelector('input[name="phone"]').value;
-
+        var isCollect = document.getElementById('is-collect').checked;
+        console.log(isCollect);
         // Check for product availability before initiating payment
         $.ajax({
             type: "POST",
@@ -167,6 +185,7 @@
                                     'amount': '{{ cart_total|stringformat:"d" }}00',
                                     'products': products,
                                     'shipping_address': $('#id_address1').val() + ', ' + $('#id_address2').val(),
+                                    'is_collect': isCollect,
                                     'csrfmiddlewaretoken': '{{ csrf_token }}',
                                 },
                                 success: (serverResponse) => {
