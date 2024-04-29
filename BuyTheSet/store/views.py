@@ -164,7 +164,7 @@ def category(request, foo):
     try:
         # Look for the category
         category = Category.objects.get(name=foo)
-        products = Product.objects.filter(category=category).order_by("-sale_price", "name")
+        products = Product.objects.filter(category=category, quantity__gt=0).order_by("-sale_price", "name")
         context = {
             "products": products,
             "category": category,
@@ -188,7 +188,7 @@ def product(request, pk):
 
 
 def home(request):
-    products = Product.objects.all().order_by('-is_sale')
+    products = Product.objects.filter(quantity__gt=0).order_by('-is_sale')
     context = {
         'products': products
     }

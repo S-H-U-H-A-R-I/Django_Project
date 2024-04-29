@@ -39,3 +39,8 @@ a {
 .progress-bar {
     transition: width 0.03s linear;
 }
+
+.square-image {
+    aspect-ratio: 1/1;
+    object-fit: cover;
+}
