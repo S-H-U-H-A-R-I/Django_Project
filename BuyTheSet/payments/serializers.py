@@ -1,3 +1,5 @@
+import json
+from decimal import Decimal
 from .forms import ShippingAddressForm
 from .models import ShippingAddress
 from store.models import Profile
@@ -63,7 +65,7 @@ class PaymentSerializer:
             }
             cart_items_data.append(item_data)
         return cart_items_data
-    
+        
     @staticmethod
     def get_cart_total(cart):
         return CartSerializer.get_cart_total(cart)

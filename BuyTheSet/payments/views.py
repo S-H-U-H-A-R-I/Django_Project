@@ -97,13 +97,15 @@ def check_product_availability(request):
 @csrf_exempt
 def save_order(request):
     if request.method == 'POST':
+        payment_method = request.POST.get('payment_method')
         email = request.POST.get('email')
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
-        amount = request.POST.get('amount')
         products_data = json.loads(request.POST.get('products'))
+        amount = request.POST.get('amount')
         shipping_address = request.POST.get('shipping_address', '')
         is_collect = request.POST.get('is_collect') == 'true'
+        ic(payment_method, email, first_name, last_name, amount, products_data, shipping_address, is_collect)
         
         with transaction.atomic():
             # Create a new Order instance
@@ -112,9 +114,12 @@ def save_order(request):
                 full_name=f'{first_name} {last_name}',
                 email=email,
                 shipping_address='' if is_collect else shipping_address,
-                amount_paid=Decimal(amount) / 100,
+                amount_paid=Decimal(amount) if payment_method == 'paystack' else Decimal(0),
                 is_collect=is_collect,
+                payment_method=payment_method,
             )
+            ic(order.user, order.full_name, order.email, order.shipping_address, order.amount_paid, order.is_collect, order.payment_method)
+            order.save()
             # Create OrderItem instances for each purchased product
             for product_data in products_data:
                 product_name = html.unescape(product_data['name'])

@@ -30,6 +30,7 @@ class Order(models.Model):
     shipping_fee = models.DecimalField(max_digits=10, decimal_places=2, default=50.00)
     is_collect = models.BooleanField(default=False, verbose_name="Collect")
     date_ordered = models.DateTimeField(auto_now_add=True)
+    payment_method = models.CharField(max_length=20, choices=[('paystack', 'Paystack'), ('cash', 'cash')], default='paystack')
     
     def __str__(self):
         return f"Order {self.id}"
@@ -37,6 +38,7 @@ class Order(models.Model):
     def save(self, *args, **kwargs):
         if self.is_collect:
             self.shipping_fee = 0.00
+        super().save(*args, **kwargs)
     
     
 # OrderItem model
