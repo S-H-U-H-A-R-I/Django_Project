@@ -27,11 +27,16 @@ class Order(models.Model):
     email = models.EmailField()
     shipping_address = models.TextField(max_length=15000, blank=True, null=True)
     amount_paid = models.DecimalField(max_digits=10, decimal_places=2)
+    shipping_fee = models.DecimalField(max_digits=10, decimal_places=2, default=50.00)
     is_collect = models.BooleanField(default=False, verbose_name="Collect")
     date_ordered = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
         return f"Order {self.id}"
+    
+    def save(self, *args, **kwargs):
+        if self.is_collect:
+            self.shipping_fee = 0.00
     
     
 # OrderItem model

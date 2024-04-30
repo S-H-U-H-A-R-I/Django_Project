@@ -37,11 +37,13 @@ def checkout(request):
     cart_items_data = PaymentSerializer.get_cart_items_data(cart.cart)
     cart_total = PaymentSerializer.get_cart_total(cart.cart)
     paystack_public_key = settings.PAYSTACK_PUBLIC_KEY
+    default_shipping_fee = Order._meta.get_field('shipping_fee').default
     context = {
         'form': form,
         'cart_items_data': cart_items_data,
         'cart_total': cart_total,
         'paystack_public_key': paystack_public_key,
+        'default_shipping_fee': default_shipping_fee,
     }
     return render(request, 'checkout.html', context)    
 

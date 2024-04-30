@@ -1,4 +1,7 @@
+from decimal import Decimal
+from icecream import ic
 from .models import Cart, CartItem
+from payments.models import Order
 
 class CartSerializer:
     @staticmethod
@@ -13,7 +16,9 @@ class CartSerializer:
             else item.product.price * item.quantity 
             for item in cart_items
         )
-        return total
+        shipping_fee = Decimal(Order._meta.get_field('shipping_fee').default)
+
+        return total + shipping_fee
     
     @staticmethod
     def get_item_quantity(cart, product_id):

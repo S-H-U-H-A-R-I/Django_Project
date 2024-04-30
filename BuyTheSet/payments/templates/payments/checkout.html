@@ -32,8 +32,8 @@
                 </tbody>
             </table>
             <div class="text-right">
-                <h5>Shipping: Free</h5>
-                <h4>Total: R{{ cart_total }}</h4>
+                <h5 id="shipping-fee">Shipping: R{{ default_shipping_fee }}</h5>
+                <h4>Total: R<span id="total-amount">{{ cart_total }}</span></h4>
             </div>
         </div>
         <div class="col-md-4">
@@ -71,19 +71,40 @@
             'total': {{ item.total }},
         });
     {% endfor %}
+    console.log(purchasedProducts)
 </script>
 <script>
-    document.getElementById('is-collect').addEventListener('change', function(){
+    var defaultShippingFee = {{ default_shipping_fee }};
+    var cartTotal = {{ cart_total }};
+    var totalWithoutShipping = cartTotal - defaultShippingFee;
+    var isCollectChecked = localStorage.getItem('isCollectChecked') === 'true';
+    function updateCollectState(){
         var address1Field = document.getElementById('id_address1').parentNode;
         var address2Field = document.getElementById('id_address2').parentNode;
-        if (this.checked) {
+        var shippingFee = document.getElementById('shipping-fee');
+        var totalAmount = document.getElementById('total-amount');
+        if (isCollectChecked) {
             address1Field.classList.add('d-none');
             address2Field.classList.add('d-none');
+            shippingFee.innerText = 'Shipping: R0.00';
+            totalAmount.innerText = totalWithoutShipping;
         } else {
             address1Field.classList.remove('d-none');
             address2Field.classList.remove('d-none');
+            shippingFee.innerText = 'Shipping: R{{ default_shipping_fee }}';
+            totalAmount.innerText = cartTotal;
         };
+    };
+    document.addEventListener('DOMContentLoaded', function() {
+        var isCollectCheckbox = document.getElementById('is-collect');
+        isCollectCheckbox.checked = isCollectChecked;
+        updateCollectState();
     });
+    document.getElementById('is-collect').addEventListener('change', function() {
+        isCollectChecked = this.checked;
+        localStorage.setItem('isCollectChecked', isCollectChecked);
+        updateCollectState();
+    })
 
     function saveOrderInfo(){
         var form = document.getElementById('order-form');
@@ -150,7 +171,7 @@
         var lastName = paystackForm.querySelector('input[name="last_name"]').value;
         var phone = paystackForm.querySelector('input[name="phone"]').value;
         var isCollect = document.getElementById('is-collect').checked;
-        console.log(isCollect);
+        var totalAmount = isCollect? totalWithoutShipping : cartTotal;
         // Check for product availability before initiating payment
         $.ajax({
             type: "POST",
@@ -166,7 +187,7 @@
                     handler.newTransaction({
                         key: '{{ paystack_public_key }}',
                         email: email,
-                        amount: '{{ cart_total|stringformat:"d" }}00',
+                        amount: totalAmount * 100,
                         currency: "ZAR",
                         ref: ''+Math.floor((Math.random() * 1000000000) +1),
                         firstname: firstName,
