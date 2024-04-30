@@ -43,6 +43,7 @@
                 <div id="shipping-fields">
                     {{ form.as_p }}
                 </div>
+                <div id="map" style="height: 400px; display: none;"></div>
                 <div class="container my-3 d-flex justify-content-between">
                     <button type="button" class="btn btn-primary" id="paystack-button" onclick="saveOrderInfo()">Pay with Paystack</button>
                     <button type="button" class="btn btn-primary" style="display: none;" id="pay-button" onclick="saveOrder()">Pay</button>
@@ -67,6 +68,7 @@
         </div>
     </div>
 </div>
+ <!--Google Maps Javascript API-->
 <script>
     // Get the purchased product details and assign it to a JavaScript variable
     var purchasedProducts = [];
@@ -78,6 +80,7 @@
             'total': {{ item.total }},
         });
     {% endfor %}
+
 </script>
 <script>
     var defaultShippingFee = {{ default_shipping_fee }};
@@ -151,6 +154,12 @@
             },
             success: (response) => {
                 var products = JSON.stringify(purchasedProducts)
+                var total_owed
+                if (isCollectChecked) {
+                    total_owed = totalWithoutShipping;
+                } else {
+                    total_owed = cartTotal;
+                }
                 // Make an AJAX request to save the order on the server
                 $.ajax({
                     type: "POST",
@@ -163,6 +172,7 @@
                         'shipping_address': $('#id_address1').val() + ', ' + $('#id_address2').val(),
                         'is_collect': isCollect,
                         'payment_method': 'cash',
+                        'total_owed': total_owed,
                         'csrfmiddlewaretoken': '{{ csrf_token }}',
                     },
                     success: (serverResponse) => {
@@ -280,7 +290,6 @@
                                     'email': email,
                                     'first_name': firstName,
                                     'last_name': lastName,
-                                    'amount': '{{ cart_total|stringformat:"d" }}00',
                                     'products': products,
                                     'shipping_address': $('#id_address1').val() + ', ' + $('#id_address2').val(),
                                     'is_collect': isCollect,
@@ -311,6 +320,38 @@
             }
         });
     }
+
+   /* Google Maps */ 
+    function initMap() {
+        var map = new google.maps.Map(document.getElementById('map'), {
+            center: { lat: -34.397, lng: 150.644 },
+            zoom: 8
+        });
+
+        var input = document.getElementById('id_address1');
+        var autocomplete = new google.maps.places.Autocomplete(input);
+
+        autocomplete.addListener('place_changed', function () {
+            var place = autocomplete.getPlace();
+            if (!place.geometry) {
+                console.log("No details available for input: '" + place.name + "'");
+                return;
+            }
+
+            map.setCenter(place.geometry.location);
+            map.setZoom(17);
+
+            var marker = new google.maps.Marker({
+                map: map,
+                position: place.geometry.location
+            });
+
+            // Populate the address fields with the selected location details
+            document.getElementById('id_address1').value = place.formatted_address;
+            document.getElementById('id_address2').value = '';
+        });
+    }
 </script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBjzmG0ihrCQhGaW2QjH86EDRS1VtDOObY&libraries=places&callback=initMap" async defer></script>
 {% endblock %}
 

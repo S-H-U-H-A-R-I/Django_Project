@@ -4,9 +4,11 @@ import re
 from decimal import Decimal
 from icecream import ic
 from django.conf import settings
+from django.core.mail import send_mail
 from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
+from django.template.loader import render_to_string
 from django.views.decorators.csrf import csrf_exempt
 from .forms import PaymentForm, ShippingAddressForm
 from .models import ShippingAddress, Order, OrderItem
@@ -105,7 +107,7 @@ def save_order(request):
         amount = request.POST.get('amount')
         shipping_address = request.POST.get('shipping_address', '')
         is_collect = request.POST.get('is_collect') == 'true'
-        ic(payment_method, email, first_name, last_name, amount, products_data, shipping_address, is_collect)
+        total_owed = request.POST.get('total_owed')
         
         with transaction.atomic():
             # Create a new Order instance
@@ -117,8 +119,8 @@ def save_order(request):
                 amount_paid=Decimal(amount) if payment_method == 'paystack' else Decimal(0),
                 is_collect=is_collect,
                 payment_method=payment_method,
+                total_amount=total_owed,
             )
-            ic(order.user, order.full_name, order.email, order.shipping_address, order.amount_paid, order.is_collect, order.payment_method)
             order.save()
             # Create OrderItem instances for each purchased product
             for product_data in products_data:
@@ -142,6 +144,16 @@ def save_order(request):
                 )
             cart = CartManager(request)
             cart.cart.delete()
+            # Send email to the customer if the payment method is 'cash'
+            if payment_method == 'cash':
+                subject = 'Order Confirmation'
+                from_email = settings.EMAIL_HOST_USER
+                recipient_list = [order.email, from_email]
+                message = render_to_string('order_confirmation_email.html', {
+                    'order': order,
+                    'order_items': OrderItem.objects.filter(order=order),
+                })
+                send_mail(subject, message, from_email, recipient_list, html_message=message)
         return JsonResponse({'success': True})
     return JsonResponse({'success': False, 'errors': 'Invalid request'})
 
