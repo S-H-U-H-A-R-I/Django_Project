@@ -1,6 +1,7 @@
 from icecream import ic
-from django.shortcuts import get_object_or_404, redirect, render
 from django.conf import settings
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
@@ -52,13 +53,21 @@ def login_user(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            messages.success(request, f"You have successfully logged in as {user.username}")
+            success_message = 'You have logged in successfully'
+            alert_type ='success'
+            request.session['message'] = success_message
+            request.session['alert_type'] = alert_type
             return redirect('home')
         else:
-            messages.error(request,  'Username or Password is incorrect', "danger")
-            return redirect('login')
+            error_message = 'Username or Password is incorrect'
+            alert_type = 'danger'
+            context = {
+                'message': error_message,
+                'alert_type': alert_type
+            }
+            return render(request, 'login.html', context)
     else:
-        return render(request, 'login.html', )
+        return render(request, 'login.html')
 
 
 def update_info(request):
@@ -188,8 +197,12 @@ def product(request, pk):
 
 def home(request):
     products = Product.objects.filter(quantity__gt=0).order_by('-is_sale')
+    message = request.session.pop('message', None)
+    alert_type = request.session.pop('alert_type', None)
     context = {
-        'products': products
+        'products': products,
+        'message': message,
+        'alert_type': alert_type
     }
     return render(request, 'home.html', context)
 
@@ -200,7 +213,10 @@ def about(request):
 
 def logout_user(request):
     logout(request)
-    messages.success(request, "You have successfully logged out.")
+    success_message = "You have been logged out successfully."
+    alert_type = "success"
+    request.session['message'] = success_message
+    request.session['alert_type'] = alert_type
     return redirect('home')
 
 

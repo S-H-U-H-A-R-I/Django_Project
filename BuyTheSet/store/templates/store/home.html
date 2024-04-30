@@ -57,6 +57,10 @@
   </div>
 </section>
 <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        displayAlert("{{message}}", "{{alert_type}}")
+    })
+
     $(document).ready(function() {
         $('.carousel').each(function() {
             var $carousel = $(this);
