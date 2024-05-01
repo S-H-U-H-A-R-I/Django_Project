@@ -36,6 +36,27 @@ function displayAlert(message, alertType) {
 }
 
 
+// Cart Sidebar
+document.addEventListener('DOMContentLoaded', function() {
+    var cartOffcanvas = document.getElementById('cartOffcanvas');
+    var offcanvasBackdrop = document.createElement('div');
+    offcanvasBackdrop.classList.add('offcanvas-backdrop');
+
+    cartOffcanvas.addEventListener('show.bs.offcanvas', function() {
+        document.body.appendChild(offcanvasBackdrop);
+        setTimeout(function() {
+            offcanvasBackdrop.classList.add('show');
+        }, 10)
+    });
+
+    cartOffcanvas.addEventListener('hidden.bs.offcanvas', function() {
+        offcanvasBackdrop.classList.remove('show');
+        setTimeout(function() {
+            document.body.removeChild(offcanvasBackdrop);
+        }, 300)
+    });
+})
+
 
 
 

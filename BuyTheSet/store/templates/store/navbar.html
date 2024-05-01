@@ -3,9 +3,9 @@
     <a class="navbar-brand text-uppercase logo text-dark" href="{% url 'home' %}">BuyTheSet</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <div class="d-flex justify-content-between align-items-center w-100">
-            <div></div>
-            <form class="mx-auto d-flex align-items-center" action="{% url 'product_search' %}" method="get"> 
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0"></ul>
+        <div class="search-container">
+            <form class="d-flex align-items-center" action="{% url 'product_search' %}" method="get"> 
                 {% csrf_token %}
                 <div class="search-box">
                     <input class="form-control bg-light text-dark border-none custom-search-input" type="search" placeholder="Search products..." aria-label="Search" name="q" value="{{ request.GET.q }}">
@@ -15,27 +15,25 @@
                 <input type="hidden" name="category" value="{{ category.name }}">
                 {% endif %}
             </form>
-            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                <li class="nav-item dropdown">
-                    <a href="#" class="nav-link profile-icon-container" id="profileDrowpdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-person-circle"></i>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDrowpdown">
-                        <li><a class="dropdown-item" href="#">Login</a></li>    
-                        <li><hr class="dropdown-divider"></li>                    
-                        <li><a class="dropdown-item" href="#">Register</a></li>                        
-                    </ul>
-                </li>
-                {% if request.path != '/cart/' %}
-                <li class="nav-item">
-                    <a href="{% url 'cart_summary' %}" class="nav-link cart-icon-container">
-                        <i class="bi-cart-fill"></i>
-                        <span id="cart_quantity" class="cart-quantity">0</span>
-                    </a>
-                </li>
-                {% endif %}
-            </ul>
         </div>
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+            <li class="nav-item dropdown">
+                <a href="#" class="nav-link profile-icon-container" id="profileDrowpdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-person-circle"></i>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDrowpdown">
+                    <li><a class="dropdown-item" href="#">Login</a></li>    
+                    <li><hr class="dropdown-divider"></li>                    
+                    <li><a class="dropdown-item" href="#">Register</a></li>                        
+                </ul>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link cart-icon-container" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas" aria-controls="cartOffcanvas">
+                    <i class="bi-cart-fill"></i>
+                    <span id="cart_quantity" class="cart-quantity">0</span>
+                </a>
+            </li>
+        </ul>
     </div>
   </div>
 </nav>
