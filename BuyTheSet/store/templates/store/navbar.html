@@ -1,72 +1,39 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top">
   <div class="container px-4 px-lg-5">
-    <a class="navbar-brand text-uppercase logo" href="{% url 'home' %}">BuyTheSet</a>
+    <a class="navbar-brand text-uppercase logo text-dark" href="{% url 'home' %}">BuyTheSet</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
-        <li class="nav-item">
-          <a class="nav-link fw-bold fs-5 {% if request.path == '/' %}active{% endif %}" aria-current="page" href="{% url 'home' %}">Home</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link fw-bold fs-5 {% if request.path == '/about/' %}active{% endif %}" href="{% url 'about' %}">About</a>
-        </li>
-        {% if user.is_authenticated %}
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle fw-bold fs-5 {% if request.path == '/categories/' %}active{% endif %}" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Profile</a>
-                <ul class="dropdown-menu bg-dark" aria-labelledby="navbarDropdown">
-                    <li>
-                        <a class="dropdown-item text-white " href="{% url 'update_user' %}">User Profile</a>
-                    </li>
-                    <li>
-                        <hr class="dropdown-divider" />
-                    </li>
-                    <li>
-                        <a class="dropdown-item text-white" href="{% url 'update_info' %}">User Info</a>
-                    </li>
-                </ul>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link fw-bold fs-5 {% if request.path == '/logout/' %}active{% endif %}" href="{% url 'logout' %}">Logout</a>
-            </li>
-        {% else %}
-          <li class="nav-item">
-            <a class="nav-link fw-bold fs-5 {% if request.path == '/login/' %}active{% endif %}" href="{% url 'login' %}">Login</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link fw-bold fs-5 {% if request.path == '/register/' %}active{% endif %}" href="{% url 'register' %}">Register</a>
-          </li>
-        {% endif %}
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle fw-bold fs-5 {% if request.path == '/categories/' %}active{% endif %}" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Categories</a>
-          <ul class="dropdown-menu bg-dark" aria-labelledby="navbarDropdown">
-            <li>
-              <a class="dropdown-item text-white " href="{% url 'category_summary' %}">All Categories</a>
-            </li>
-            <li>
-              <hr class="dropdown-divider" />
-            </li>
-            {% for category in categories %}
-              <li>
-                <a class="dropdown-item text-white" href="{% url 'category' category.name %}">{{ category.name }}</a>
-              </li>
-            {% endfor %}
-          </ul>
-        </li>
-      </ul>
-        <form class="d-flex" action="{% url 'product_search' %}" method="get"> {% csrf_token %}
-            <input class="form-control bg-dark text-white border-secondary me-2 custom-search-input" type="search" placeholder="Search products..." aria-label="Search" name="q" value="{{ request.GET.q }}">
-            {% if category %}
-            <input type="hidden" name="category" value="{{ category.name }}">
-            {% endif %}
-        </form>
-        {% if request.path != '/cart/' %}
-        <form class="d-flex">
-          <a href="{% url 'cart_summary' %}" class="btn btn-outline-secondary ms-2">
-            <i class="bi-cart-fill me-1"></i>
-            Cart
-          </a>
-        </form>
-        {% endif %}
+        <div class="d-flex justify-content-between align-items-center w-100">
+            <div></div>
+            <form class="mx-auto d-flex align-items-center" action="{% url 'product_search' %}" method="get"> 
+                {% csrf_token %}
+                <div class="search-box">
+                    <input class="form-control bg-light text-dark border-none custom-search-input" type="search" placeholder="Search products..." aria-label="Search" name="q" value="{{ request.GET.q }}">
+                    <i class="bi bi-search search-icon"></i>
+                </div>
+                {% if category %}
+                <input type="hidden" name="category" value="{{ category.name }}">
+                {% endif %}
+            </form>
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a href="#" class="nav-link profile-icon-container">
+                        <i class="bi bi-person-circle"></i>
+                    </a>
+                </li>
+                {% if request.path != '/cart/' %}
+                <li class="nav-item">
+                    <a href="{% url 'cart_summary' %}" class="nav-link cart-icon-container">
+                        <i class="bi-cart-fill"></i>
+                        <span id="cart_quantity" class="cart-quantity">0</span>
+                    </a>
+                </li>
+
+                {% else %}
+                <div></div>
+                {% endif %}
+            </ul>
+        </div>
     </div>
   </div>
 </nav>
