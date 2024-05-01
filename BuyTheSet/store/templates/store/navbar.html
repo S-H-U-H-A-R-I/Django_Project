@@ -16,10 +16,15 @@
                 {% endif %}
             </form>
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                    <a href="#" class="nav-link profile-icon-container">
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link profile-icon-container" id="profileDrowpdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="bi bi-person-circle"></i>
                     </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDrowpdown">
+                        <li><a class="dropdown-item" href="#">Login</a></li>    
+                        <li><hr class="dropdown-divider"></li>                    
+                        <li><a class="dropdown-item" href="#">Register</a></li>                        
+                    </ul>
                 </li>
                 {% if request.path != '/cart/' %}
                 <li class="nav-item">
@@ -28,9 +33,6 @@
                         <span id="cart_quantity" class="cart-quantity">0</span>
                     </a>
                 </li>
-
-                {% else %}
-                <div></div>
                 {% endif %}
             </ul>
         </div>

@@ -138,3 +138,14 @@ color: #496057;
     justify-content: center;
 }
 
+
+/* Profile */
+.dropdown-menu {
+    min-width: 100px;
+}
+
+.dropdown-menu-end {
+    right: auto;
+    left: 50%;
+    transform: translateX(20%);
+}
