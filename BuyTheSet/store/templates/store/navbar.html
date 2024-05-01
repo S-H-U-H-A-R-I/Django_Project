@@ -2,20 +2,19 @@
   <div class="container px-4 px-lg-5">
     <a class="navbar-brand text-uppercase logo text-dark" href="{% url 'home' %}">BuyTheSet</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+    <div class="search-container">
+        <form class="d-flex align-items-center" action="{% url 'product_search' %}" method="get"> 
+            {% csrf_token %}
+            <div class="search-box">
+                <input class="form-control bg-light text-dark border-none custom-search-input" type="search" placeholder="Search products..." aria-label="Search" name="q" value="{{ request.GET.q }}">
+                <i class="bi bi-search search-icon"></i>
+            </div>
+            {% if category %}
+            <input type="hidden" name="category" value="{{ category.name }}">
+            {% endif %}
+        </form>
+    </div>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0"></ul>
-        <div class="search-container">
-            <form class="d-flex align-items-center" action="{% url 'product_search' %}" method="get"> 
-                {% csrf_token %}
-                <div class="search-box">
-                    <input class="form-control bg-light text-dark border-none custom-search-input" type="search" placeholder="Search products..." aria-label="Search" name="q" value="{{ request.GET.q }}">
-                    <i class="bi bi-search search-icon"></i>
-                </div>
-                {% if category %}
-                <input type="hidden" name="category" value="{{ category.name }}">
-                {% endif %}
-            </form>
-        </div>
         <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
             <li class="nav-item dropdown">
                 <a href="#" class="nav-link profile-icon-container" id="profileDrowpdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
