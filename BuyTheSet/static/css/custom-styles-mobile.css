@@ -84,20 +84,14 @@
         flex-grow: 1;
     }
 
-    .dropdown-menu-end {
-        transform: none;
-    }
-
 
     /* profile */
     .profile-icon-container {
         margin-right: -5px;
     }
-
     .dropdown-menu {
         min-width: 100px;
     }
-
     .dropdown-menu-end {
         transform: none;
     }
@@ -192,7 +186,7 @@
         position: relative;
         text-align: center;
         width: 100%;
-        padding: 20px;
+        padding-bottom: 50px;
     }.mobile-menu-content a {
         display: block;
         color: #000;
@@ -209,4 +203,6 @@
     .menu-icon-container .bi-list{
         font-size: 1.5rem;
     }
+
+
 }
