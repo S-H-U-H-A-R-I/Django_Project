@@ -3,46 +3,58 @@
 <!-- Section-->
 <section class="custom-py">
   <div class="container px-4 px-lg-5 mt-5">
-    <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
-      {% for product in products %}
-      <div class="col mb-5">
-        <div class="card h-100">
-            <!-- Product image-->
-            <div id="productCarousel{{ product.id }}" class="carousel slide">
-                <div class="carousel-inner">
-                    <div class="carousel-item active">
-                        <img src="{{ product.image.url }}" class="d-block w-100 square-image" alt="{{ product.name }}">
-                    </div>
-                    {% for image in product.additional_images.all %}
-                    <div class="carousel-item">
-                        <img src="{{ image.image.url }}" class="d-block w-100 square-image" alt="{{ product.name }}">
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-            <!-- Product details-->
-            <div class="card-body p-4">
-                <div class="text-center">
-                <!-- Product name-->
-                <h5 class="fw-bolder">{{ product.name }}</h5>
-                <!-- Product price-->
-                {% if product.is_sale %}
-                <span class="text-muted text-decoration-line-through">R{{ product.price }}</span>
-                R{{ product.sale_price }}
-                {% else %}
-                R{{ product.price }}
-                {% endif %}
-                </div>
-            </div>
-            <!-- Product actions-->
-            <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-                <div class="text-center">
-                <a class="btn btn-outline-dark mt-auto" href="{% url 'product' product.id %}">View options</a>
+    <div class="row">
+        <div class="col-md-3">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="sidebar-content">
+                    <h6>CATEGORIES</h6>
+                    <hr>
+                    <p>All Products</p>
+                    <p>Random things</p>
+                    <p>Mother's Day</p>
+                    <p>Phones</p>
+                    <hr>
                 </div>
             </div>
         </div>
-      </div>
-      {% endfor %}
+        <div class="col-md-9">
+            <div class="row row-cols-1 row-cols-md-3 g-0">  
+                {% for product in products %}
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            <!-- Product image-->
+                            <div id="productCarousel{{ product.id }}" class="carousel slide">
+                                <div class="carousel-inner">
+                                    <div class="carousel-item active">
+                                        <img src="{{ product.image.url }}" class="d-block w-100 square-image" alt="{{ product.name }}">
+                                    </div>
+                                    {% for image in product.additional_images.all %}
+                                    <div class="carousel-item">
+                                        <img src="{{ image.image.url }}" class="d-block w-100 square-image" alt="{{ product.name }}">
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <!-- Product details-->
+                            <div class="card-body p-4">
+                                <div class="text-center">
+                                <!-- Product name-->
+                                <h6>{{ product.name }}</h6>
+                                <!-- Product price-->
+                                {% if product.is_sale %}
+                                <span class="text-muted text-decoration-line-through">R{{ product.price }}</span>
+                                R{{ product.sale_price }}
+                                {% else %}
+                                R{{ product.price }}
+                                {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
     </div>
   </div>
 </section>

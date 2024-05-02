@@ -61,7 +61,7 @@ color: #496057;
 
 
 @media (min-width: 992px) {
-    /* Navbar */
+/****** Navbar ******/
     .navbar {
         justify-content: space-between;
         padding-bottom: 40px;
@@ -206,6 +206,7 @@ color: #496057;
     }
     .dropdown-menu {
         min-width: 100px;
+        top: 50% !important;
     }
     .dropdown-menu-end {
         right: auto !important;
@@ -219,10 +220,48 @@ color: #496057;
         margin-left: 10px;
     }
 
-    /* Home Page */
+
+
+/****** Home Page ******/
     .custom-py {
         padding-top: 5rem;
         padding-bottom: 3rem;
+    }
+
+    /* Sidebar */
+    .sidebar {
+        position: sticky;
+        top: 100px;
+        max-height: calc(100vh - 100px);
+        overflow-y: auto;
+        padding: 20px;
+        border-radius: 0;
+        border: none;
+        padding-left: 0px;
+    }
+    .sidebar-content {
+        padding-right: 10px;
+    }.sidebar-content::-webkit-scrollbar {
+        width: 6px;
+    }.sidebar-content::-webkit-scrollbar-track {
+        background-color: #f1f1f1;
+    }.sidebar-content::-webkit-scrollbar-thumb {
+        background-color: #888;
+        border-radius: 3px;
+    }.sidebar-content::-webkit-scrollbar-thumb:hover {
+        background-color: #555;
+    }.sidebar-content p {
+        margin-bottom: 0.5rem;
+    }
+
+    /* Products */
+    .card {
+        border-radius: 0 !important;
+        border: none !important;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .card-footer {
+        border-top: none !important;
     }
 }
 
