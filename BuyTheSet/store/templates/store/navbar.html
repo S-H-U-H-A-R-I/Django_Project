@@ -2,14 +2,14 @@
   <div class="container px-4 px-lg-5">
     <a class="navbar-brand text-uppercase logo text-dark" href="{% url 'home' %}">BuyTheSet</a>
     <div class="search-container">
-        <form class="d-flex align-items-center" action="{% url 'product_search' %}" method="get"> 
+        <form class="d-flex align-items-center" action="{% url 'home' %}" method="get"> 
             {% csrf_token %}
             <div class="search-box">
                 <input class="form-control bg-light text-dark border-none custom-search-input" type="search" placeholder="Search products..." aria-label="Search" name="q" value="{{ request.GET.q }}">
                 <i class="bi bi-search search-icon"></i>
             </div>
-            {% if category %}
-            <input type="hidden" name="category" value="{{ category.name }}">
+            {% if selected_category %}
+            <input type="hidden" name="category" value="{{ selected_category }}">
             {% endif %}
         </form>
     </div>

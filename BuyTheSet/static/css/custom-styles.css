@@ -252,6 +252,12 @@ color: #496057;
         background-color: #555;
     }.sidebar-content p {
         margin-bottom: 0.5rem;
+    }.sidebar-content p a {
+        color: #333;
+    }.sidebar-content p a:hover {
+        color: #838383;
+    }.sidebar-content p a.active {
+        color: #1553ff;
     }
 
     /* Products */

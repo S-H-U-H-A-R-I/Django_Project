@@ -10,10 +10,10 @@
                 <div class="sidebar-content">
                     <h6>CATEGORIES</h6>
                     <hr>
-                    <p>All Products</p>
-                    <p>Random things</p>
-                    <p>Mother's Day</p>
-                    <p>Phones</p>
+                    <p><a href="{% url 'home' %}" class="{% if not selected_category %}active{% endif %}">All Products</a></p>
+                    {% for category in categories %}
+                    <p><a href="{% url 'home' %}?category={{ category.name }}" class="{% if selected_category == category.name %}active{% endif %}">{{ category.name }}</a>
+                    {% endfor%}
                     <hr>
                 </div>
             </div>

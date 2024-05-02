@@ -1,3 +1,4 @@
+import re
 from icecream import ic
 from django.conf import settings
 from django.shortcuts import get_object_or_404, redirect, render
@@ -8,7 +9,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
-from django.db.models import Q
+from django.db.models import Q, Value as V
+from django.db.models.functions import Replace
 from payments.models import Order, OrderItem, ShippingAddress
 from .forms import SignUpForm, UpdateUserform, ChangePasswordForm, UserInfoForm
 from .models import Product, Category, Profile, ProductImage
@@ -196,11 +198,37 @@ def product(request, pk):
 
 
 def home(request):
-    products = Product.objects.filter(quantity__gt=0).order_by('-is_sale')
+    category_name = request.GET.get('category', None)
+    search_query = request.GET.get('q', None)
     message = request.session.pop('message', None)
     alert_type = request.session.pop('alert_type', None)
+    categories = Category.objects.all()
+    if category_name:
+        category = Category.objects.filter(name=category_name).first()
+        if category:
+            products = Product.objects.filter(category=category, quantity__gt=0).order_by('-is_sale')
+        else:
+            products = Product.objects.none()
+    else:
+        products = Product.objects.filter(quantity__gt=0).order_by('-is_sale')
+    if search_query:
+        search_terms = search_query.split()
+        query = Q()
+        for term in search_terms:
+            query |= Q(name__icontains=term) | Q(description__icontains=term) | Q(verbose_name__icontains=term)
+        if category_name:
+            category = Category.objects.filter(name=category_name).first()
+            products = products.filter(query, category=category).order_by('-is_sale').distinct()
+        else:
+            products = products.filter(query).order_by('-is_sale').distinct()
+        if not products:
+            message = f"No products found for '{search_query}'."
+            alert_type = "warning"
     context = {
         'products': products,
+        'categories': categories,
+        'selected_category': category_name,
+        'search_query': search_query,
         'message': message,
         'alert_type': alert_type
     }
