@@ -16,6 +16,13 @@
         order: 4;
         width: 100%;
     }
+    .navbar-icons {
+        display: flex;
+        align-items: center;
+    }
+    .navbar-icons .nav-link {
+        margin-left: 10px;
+    }
 
     .navbar-nav {
         flex-direction: row;
@@ -106,52 +113,44 @@
         line-height: 1;
         color: #333;
     }
-
-    .cart-icon-container .bi-cart-fill,
+    .cart-icon-container .bi-bag-fill,
     .profile-icon-container .bi-person-circle {
         font-size: 1.5rem;
     }
-
     .cart-quantity {
         position: absolute;
-        top: -8px;
-        right: -8px;
+        top: -5px;
+        right: -7.5px;
         background-color: transparent;
         border-radius: 50%;
-        width: 18px;
-        height: 18px;
+        width: 39px;
+        height: 39px;
         font-size: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
+        color: #fff;
     }
-
     .offcanvas-backdrop {
         background-color: rgba(0, 0, 0, 0.5);
         opacity: 0;
         transition: opacity 0.3s ease;
-    }
-    .offcanvas-backdrop.show {
+    } .offcanvas-backdrop.show {
         opacity: 1;
     }
-
     .offcanvas-end {
         width: 400px;
     }
-
     .offcanvas-header {
         position: relative;
     }
-
     .offcanvas-title {
         margin: 0;
     }
-
     .cart-header-line {
         margin: 0;
         border-top: 1px solid #ccc;
     }
-
     .custom-btn-close {
         background: none;
         border: none;
@@ -160,12 +159,54 @@
         outline: none;
         position: absolute;
         left: 1rem;
-    }
-    .custom-btn-close i {
+    }.custom-btn-close i {
         font-size: 1.5rem;
         color: #000;
-    }
-    .custom-btn-close:hover i {
+    }.custom-btn-close:hover i {
         color: #555;
+    }
+
+
+    /* Mobile Menu */
+    .mobile-menu {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #fff;
+        z-index: 9999;
+        display: none;
+        overflow: hidden;
+        transform: translateY(-100%);
+        transition: transform 0.3s ease-in-out;
+    }
+    .mobile-menu.show {
+        display: flex !important;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        transform: translateY(0);
+    }
+    .mobile-menu-content {
+        position: relative;
+        text-align: center;
+        width: 100%;
+        padding: 20px;
+    }.mobile-menu-content a {
+        display: block;
+        color: #000;
+        font-size: 25px;
+        margin-bottom: 10px;
+    }
+    .mobile-menu-close {
+        background: none;
+        border: none;
+        font-size: 50px;
+        color: #000;
+        cursor: pointer;
+    }
+    .menu-icon-container .bi-list{
+        font-size: 1.5rem;
     }
 }

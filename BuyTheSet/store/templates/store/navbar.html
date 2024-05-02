@@ -1,7 +1,6 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top">
   <div class="container px-4 px-lg-5">
     <a class="navbar-brand text-uppercase logo text-dark" href="{% url 'home' %}">BuyTheSet</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
     <div class="search-container">
         <form class="d-flex align-items-center" action="{% url 'product_search' %}" method="get"> 
             {% csrf_token %}
@@ -14,25 +13,22 @@
             {% endif %}
         </form>
     </div>
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-            <li class="nav-item dropdown">
-                <a href="#" class="nav-link profile-icon-container" id="profileDrowpdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="bi bi-person-circle"></i>
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDrowpdown">
-                    <li><a class="dropdown-item" href="#">Login</a></li>    
-                    <li><hr class="dropdown-divider"></li>                    
-                    <li><a class="dropdown-item" href="#">Register</a></li>                        
-                </ul>
-            </li>
-            <li class="nav-item">
-                <a href="#" class="nav-link cart-icon-container" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas" aria-controls="cartOffcanvas">
-                    <i class="bi-cart-fill"></i>
-                    <span id="cart_quantity" class="cart-quantity">0</span>
-                </a>
-            </li>
+    <div class="navbar-icons">
+        <a href="#" class="nav-link cart-icon-container" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas" aria-controls="cartOffcanvas">
+            <i class="bi bi-bag-fill"></i>
+            <span id="cart_quantity" class="cart-quantity">0</span>
+        </a>
+        <a href="#" class="nav-link profile-icon-container d-none d-lg-inline-block" id="profileDrowpdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-person-circle"></i>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDrowpdown">
+            <li><a class="dropdown-item" href="#">Login</a></li>    
+            <li><hr class="dropdown-divider"></li>                    
+            <li><a class="dropdown-item" href="#">Register</a></li>                        
         </ul>
+        <a href="#" class="nav-link menu-icon-container d-lg-none" id="menuButton">
+            <i class="bi bi-list"></i>
+        </a>
     </div>
   </div>
 </nav>

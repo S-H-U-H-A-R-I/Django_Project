@@ -78,10 +78,10 @@ color: #496057;
         margin-right: 10px;
     }
 
-    .navbar-nav .cart-icon-container,
+    /* .navbar-nav .cart-icon-container,
     .navbar-nav .profile-icon-container {
         margin-left: 10px;
-    }
+    } */
 
 
     /* Search input */
@@ -135,7 +135,7 @@ color: #496057;
         color: #333;
     }
 
-    .cart-icon-container .bi-cart-fill,
+    .cart-icon-container .bi-bag-fill,
     .profile-icon-container .bi-person-circle {
         font-size: 1.5rem;
     }
@@ -212,6 +212,10 @@ color: #496057;
         right: auto;
         left: 50%;
         transform: translateX(20%);
+    }
+
+    .menu-icon-container {
+        margin-left: 10px;
     }
 }
 
