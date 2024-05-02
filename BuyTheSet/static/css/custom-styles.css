@@ -64,6 +64,7 @@ color: #496057;
     /* Navbar */
     .navbar {
         justify-content: space-between;
+        padding-bottom: 40px;
     }
 
     .navbar-brand {
