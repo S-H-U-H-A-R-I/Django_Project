@@ -49,7 +49,8 @@ def cart_add(request):
             product = Product.objects.get(id=product_id)
             CartSerializer.update_item_quantity(cart.cart, product_id, product_qty)
             success_message = f'{product.name} has been added to your cart.'
-            response = {'success': True, 'product_name': product.name, 'message': success_message}
+            cart_quantity = cart.get_total_quantity()
+            response = {'success': True, 'message': success_message, 'cart_quantity': cart_quantity}
         except Product.DoesNotExist:
             response = {'success': False, 'error': 'Product does not exist.'}
         except Exception as e:

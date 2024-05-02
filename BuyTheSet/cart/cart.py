@@ -1,4 +1,3 @@
-from store.models import Product
 from .models import Cart, CartItem
 from icecream import ic
 
@@ -16,6 +15,9 @@ class CartManager:
             if not cart_id or not self.cart:
                 self.cart = Cart.objects.create(user=None)
                 self.session['cart_id'] = self.cart.id
+                
+    def get_total_quantity(self):
+        return sum(item.quantity for item in self.cart.cartitem_set.all())
             
     def add(self, product, quantity):
         if not self.cart:
@@ -25,6 +27,7 @@ class CartManager:
             raise ValueError("Quantity must be a positive integer.")
         
         CartItem.objects.update_or_create(cart=self.cart, product=product, defaults={'quantity': quantity})
+        self.get_total_quantity()
         
     def __len__(self):
         """

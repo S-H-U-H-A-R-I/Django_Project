@@ -221,9 +221,6 @@ def home(request):
             products = products.filter(query, category=category).order_by('-is_sale').distinct()
         else:
             products = products.filter(query).order_by('-is_sale').distinct()
-        if not products:
-            message = f"No products found for '{search_query}'."
-            alert_type = "warning"
     context = {
         'products': products,
         'categories': categories,

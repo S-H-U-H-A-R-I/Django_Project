@@ -74,6 +74,8 @@
       success: function (response) {
         if (response.success) {
             displayAlert(response.message, 'success');
+            // Update the cart quantity in the navbar
+            $('#cart_quantity').text(response.cart_quantity);
         } else {
             displayAlert(response.error, 'danger');
         }

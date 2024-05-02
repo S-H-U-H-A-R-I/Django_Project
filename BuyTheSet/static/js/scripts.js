@@ -59,7 +59,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 // Mobile Menu
-// Mobile Menu
 document.addEventListener('DOMContentLoaded', function() {
     var menuButton = document.getElementById('menuButton');
     var mobileMenu = document.getElementById('mobileMenu');
@@ -92,6 +91,14 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   });
+
+
+  // Reload page if it is loaded from back/forward cache
+window.addEventListener('pageshow', function(event) {
+    if (event.persisted || (window.performance && window.performance.getEntriesByType('navigation')[0].type === 'back_forward')) {
+        location.reload();
+    }
+});
 
 
 
