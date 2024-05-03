@@ -77,14 +77,11 @@ document.addEventListener('DOMContentLoaded', function() {
 // Cart Sidebar
 document.addEventListener('DOMContentLoaded', function() {
     var cartLink = document.querySelector('.cart-link');
-    var cartOffcanvas = document.getElementById('cartOffcanvas');
 
     cartLink.addEventListener('click', function(e) {
         e.preventDefault();
-        var offcanvasInstance = new bootstrap.Offcanvas(cartOffcanvas);
-        offcanvasInstance.show();
 
-        // Load cart items and total
+        // Send an AJAX request to fetch cart items and total
         fetch('/cart/items/', {
             method: 'GET',
             headers: {
@@ -95,34 +92,127 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             var cartItemsContainer = document.getElementById('cartItems');
             cartItemsContainer.innerHTML = ''; // Clear existing cart items
-            data.cart_items.forEach(item => {
+            // Create HTML markup for each cart item
+            data.cart_items.forEach((item, index) => {
                 var itemHtml = `
                     <div class="cart-item"> 
                     <img src="${item.product.image_url}" alt="${item.product.name}" class="cart-item-image">
                         <div class="cart-item-details">
                             <h6>${item.product.name}</h6> 
-                            <p>Quantity: ${item.quantity}</p> 
-                            <p>Price: R${item.product.price}</p> 
+                            <p class="fw-bold" style>R${item.product.price}</p> 
+                            <div class="quantity-input">
+                                <button class=" quantity-btn minus-btn" data-product-id="${item.product.id}">-</button>
+                                <input type="number" class="quantity-field" value="${item.quantity}" data-product-id="${item.product.id}">
+                                <button class="quantity-btn plus-btn" data-product-id="${item.product.id}">+</button>
+                            </div>
                         </div>
                     </div>
+                    ${index !== data.cart_items.length - 1 ? '<hr class="cart-item-separator">' : ''}
                 `;
                 cartItemsContainer.insertAdjacentHTML('beforeend', itemHtml);
             });
-            document.getElementById('cartTotal').textContent = data.cart_total;
+
+            // Attach event listeners to quantity buttons and fields
+            var quantityFields = document.querySelectorAll('.quantity-field');
+            var minusButtons = document.querySelectorAll('.minus-btn');
+            var plusButtons = document.querySelectorAll('.plus-btn');
+
+            quantityFields.forEach(field => {
+                field.addEventListener('input', debounce(updateQuantity, 1000));
+            });
+            minusButtons.forEach(btn => {
+                btn.addEventListener('click', decreaseQuantity);
+            });
+            plusButtons.forEach(btn => {
+                btn.addEventListener('click', increaseQuantity);
+            });
         })
         .catch(error => {
             console.error('Error loading cart items:', error);
         });
     });
-
-    // Remove the backdrop when the offcanvas is hidden
-    cartOffcanvas.addEventListener('hidden.bs.offcanvas', function() {
-        var backdrop = document.querySelector('.offcanvas-backdrop');
-        if(backdrop) {
-            backdrop.remove();
-        }
-    });
 });
+
+function debounce(func, delay) {
+    let timeoutId;
+    return function(...args) {
+        clearTimeout(timeoutId);
+        timoutId = setTimeout(() => {
+            func.apply(this, args);
+        }, delay);
+    };
+}
+
+function updateQuantity(e) {
+    var productId = e.target.dataset.productId;
+    var quantity = parseInt(e.target.value);
+    if (quantity >= 1) {
+        sendUpdateQuantityRequest(productId, quantity);
+    }
+}
+
+function decreaseQuantity(e) {
+    var productId = e.target.dataset.productId;
+    var quantityField = document.querySelector(`.quantity-field[data-product-id="${productId}"]`);
+    var quantity = parseInt(quantityField.value);
+    if (quantity > 1) {
+        quantity--;
+        quantityField.value = quantity;
+        sendUpdateQuantityRequest(productId, quantity);
+    }
+}
+
+function increaseQuantity(e) {
+    var productId = e.target.dataset.productId;
+    var quantityField = document.querySelector(`.quantity-field[data-product-id="${productId}"]`);
+    var quantity = parseInt(quantityField.value);
+    quantity++;
+    quantityField.value = quantity;
+    sendUpdateQuantityRequest(productId, quantity);
+}
+
+function sendUpdateQuantityRequest(productId, quantity) {
+    // Send an AJAX request to update the quantity on the server
+    fetch('/cart/update/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body: JSON.stringify({
+            product_id: productId,
+            quantity: quantity,
+        }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log('Quantity updated successfully');
+        } else {
+            console.error('Error updating quantity:', data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error updating quantity:', error);
+    });
+}
+
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie!== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+
 
 
 // Reload page if it is loaded from back/forward cache

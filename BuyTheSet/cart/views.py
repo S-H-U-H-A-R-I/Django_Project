@@ -1,3 +1,4 @@
+import json
 from icecream import ic
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import messages
@@ -6,6 +7,7 @@ from django.dispatch import receiver
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
 from django.template.loader import render_to_string
+from django.views.decorators.csrf import csrf_exempt
 from .models import Cart, CartItem
 from .cart import CartManager
 from .serializers import CartSerializer
@@ -69,6 +71,7 @@ def cart_items(request):
     }
     return JsonResponse(data)
 
+
 def cart_delete(request):
     cart = CartManager(request)
     if request.POST.get('action') == 'post':
@@ -85,23 +88,22 @@ def cart_delete(request):
         return JsonResponse(response)
 
 
+@csrf_exempt
 def cart_update(request):
     cart = CartManager(request)
     if request.method == 'POST':
+        data = json.loads(request.body)
+        product_id = data.get('product_id')
+        quantity = data.get('quantity')
         try:
-            product_id = int(request.POST.get('product_id'))
-            product_qty = int(request.POST.get("product_qty"))
             product = Product.objects.get(id=product_id)
-            CartSerializer.update_item_quantity(cart.cart, product_id, product_qty)
-            success_message = f'{product.name} has been updated.'
-            response = JsonResponse({'success': True, 'message': success_message})
-            return response
-        except ValueError:
-            return JsonResponse({'success': False, 'error': 'Invalid quantity.'}, status=400)
-        except ObjectDoesNotExist:
-            return JsonResponse({'success': False, 'error': 'Product not found.'}, status=404)
+            CartSerializer.update_item_quantity(cart.cart, product_id, quantity)
+            response = JsonResponse({'success': True})
+        except Product.DoesNotExist:
+            response = JsonResponse({'success': False, 'error': 'Product not found.'}, status=404)
         except Exception as e:
-            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+            response = JsonResponse({'success': False, 'error': str(e)}, status=500)
+        return response
     else:
         return JsonResponse({'success': False, 'error': 'Invalid request.'}, status=400)
 

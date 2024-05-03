@@ -17,7 +17,7 @@ class CartManager:
                 self.session['cart_id'] = self.cart.id
                 
     def get_total_quantity(self):
-        return sum(item.quantity for item in self.cart.cartitem_set.all())
+        return self.cart.cartitem_set.count()
             
     def add(self, product, quantity):
         if not self.cart:
