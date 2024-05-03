@@ -36,28 +36,6 @@ function displayAlert(message, alertType) {
 }
 
 
-// Cart Sidebar
-document.addEventListener('DOMContentLoaded', function() {
-    var cartOffcanvas = document.getElementById('cartOffcanvas');
-    var offcanvasBackdrop = document.createElement('div');
-    offcanvasBackdrop.classList.add('offcanvas-backdrop');
-
-    cartOffcanvas.addEventListener('show.bs.offcanvas', function() {
-        document.body.appendChild(offcanvasBackdrop);
-        setTimeout(function() {
-            offcanvasBackdrop.classList.add('show');
-        }, 10)
-    });
-
-    cartOffcanvas.addEventListener('hidden.bs.offcanvas', function() {
-        offcanvasBackdrop.classList.remove('show');
-        setTimeout(function() {
-            document.body.removeChild(offcanvasBackdrop);
-        }, 300)
-    });
-})
-
-
 // Mobile Menu
 document.addEventListener('DOMContentLoaded', function() {
     var menuButton = document.getElementById('menuButton');
@@ -65,35 +43,89 @@ document.addEventListener('DOMContentLoaded', function() {
     var mobileMenuClose = document.getElementById('mobileMenuClose');
   
     menuButton.addEventListener('click', function(e) {
-      e.preventDefault();
-      mobileMenu.style.display = 'block';
-      setTimeout(function() {
-        mobileMenu.classList.add('show');
-      }, 10);
-      document.body.style.overflow = 'hidden';
+        e.preventDefault();
+        mobileMenu.style.display = 'block';
+        setTimeout(function() {
+            mobileMenu.classList.add('show');
+        }, 10);
+        document.body.style.overflow = 'hidden';
     });
   
     mobileMenuClose.addEventListener('click', function() {
-      mobileMenu.classList.remove('show');
-      document.body.style.overflow = 'auto';
+        mobileMenu.classList.remove('show');
+        document.body.style.overflow = 'auto';
     });
   
     mobileMenu.addEventListener('click', function(e) {
-      if (e.target === mobileMenu) {
-        mobileMenu.classList.remove('show');
-        document.body.style.overflow = 'auto';
-      }
+        if (e.target === mobileMenu) {
+            mobileMenu.classList.remove('show');
+            document.body.style.overflow = 'auto';
+        }
     });
   
     mobileMenu.addEventListener('transitionend', function() {
-      if (!mobileMenu.classList.contains('show')) {
-        mobileMenu.style.display = 'none';
-      }
+        if (!mobileMenu.classList.contains('show')) {
+            mobileMenu.style.display = 'none';
+        }
     });
-  });
+});
 
 
-  // Reload page if it is loaded from back/forward cache
+// Scroll to top button
+
+
+// Cart Sidebar
+document.addEventListener('DOMContentLoaded', function() {
+    var cartLink = document.querySelector('.cart-link');
+    var cartOffcanvas = document.getElementById('cartOffcanvas');
+
+    cartLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        var offcanvasInstance = new bootstrap.Offcanvas(cartOffcanvas);
+        offcanvasInstance.show();
+
+        // Load cart items and total
+        fetch('/cart/items/', {
+            method: 'GET',
+            headers: {
+                'X-requested-With': 'XMLHttpRequest',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            var cartItemsContainer = document.getElementById('cartItems');
+            cartItemsContainer.innerHTML = ''; // Clear existing cart items
+            data.cart_items.forEach(item => {
+                var itemHtml = `
+                    <div class="cart-item"> 
+                    <img src="${item.product.image_url}" alt="${item.product.name}" class="cart-item-image">
+                        <div class="cart-item-details">
+                            <h6>${item.product.name}</h6> 
+                            <p>Quantity: ${item.quantity}</p> 
+                            <p>Price: R${item.product.price}</p> 
+                        </div>
+                    </div>
+                `;
+                cartItemsContainer.insertAdjacentHTML('beforeend', itemHtml);
+            });
+            document.getElementById('cartTotal').textContent = data.cart_total;
+        })
+        .catch(error => {
+            console.error('Error loading cart items:', error);
+        });
+    });
+
+    // Remove the backdrop when the offcanvas is hidden
+    cartOffcanvas.addEventListener('hidden.bs.offcanvas', function() {
+        var backdrop = document.querySelector('.offcanvas-backdrop');
+        if(backdrop) {
+            backdrop.remove();
+        }
+    });
+});
+
+
+// Reload page if it is loaded from back/forward cache
 window.addEventListener('pageshow', function(event) {
     if (event.persisted || (window.performance && window.performance.getEntriesByType('navigation')[0].type === 'back_forward')) {
         location.reload();

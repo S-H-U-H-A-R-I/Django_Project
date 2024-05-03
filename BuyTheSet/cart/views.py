@@ -29,17 +29,6 @@ def merge_guest_cart(sender, user, request, **kwargs):
             pass
 
 
-def cart_summary(request):
-    cart = CartManager(request)
-    cart_items = CartSerializer.get_cart_items(cart.cart)
-    cart_total = CartSerializer.get_cart_total(cart.cart)
-    context = {
-        'cart_items': cart_items,
-        'cart_total': cart_total,
-    }
-    return render(request, 'cart_summary.html', context)
-
-
 def cart_add(request):
     if request.method == 'POST':
         cart = CartManager(request)
@@ -56,6 +45,29 @@ def cart_add(request):
         except Exception as e:
             response = {'success': False, 'error': str(e)}
         return JsonResponse(response)
+
+
+def cart_items(request):
+    cart = CartManager(request)
+    cart_items = CartSerializer.get_cart_items(cart.cart)
+    cart_total = CartSerializer.get_cart_total(cart.cart)
+    cart_items_data = []
+    for item in cart_items:
+        item_data = {
+            'product': {
+                'id': item.product.id,
+                'name': item.product.name,
+                'price': str(item.product.price),
+                'image_url': item.product.image.url,
+            },
+            'quantity': item.quantity,
+        }
+        cart_items_data.append(item_data)
+    data = {
+        'cart_items': cart_items_data,
+        'cart_total': str(cart_total),
+    }
+    return JsonResponse(data)
 
 def cart_delete(request):
     cart = CartManager(request)
