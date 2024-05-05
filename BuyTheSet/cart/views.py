@@ -60,6 +60,7 @@ def cart_items(request):
                 'id': item.product.id,
                 'name': item.product.name,
                 'price': str(item.product.price),
+                'quantity': item.product.quantity,
                 'image_url': item.product.image.url,
             },
             'quantity': item.quantity,

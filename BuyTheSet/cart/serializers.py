@@ -30,6 +30,9 @@ class CartSerializer:
     @staticmethod
     def update_item_quantity(cart, product_id, quantity):
         cart_item, created = CartItem.objects.get_or_create(cart=cart, product_id=product_id)
+        product = cart_item.product
+        if quantity > product.quantity:
+            quantity = product.quantity
         cart_item.quantity = quantity
         cart_item.save()
         

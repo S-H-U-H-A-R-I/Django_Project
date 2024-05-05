@@ -224,21 +224,42 @@ color: #496057;
     }.cart-item-details p, h6 {
         margin: 0 ;
     }
+    .cart-item-name {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 150px;
+    }
     .quantity-input {
         display: flex;
         align-items: center;
-    }
-    .quantity-btn {
-        padding: 5px 10px;
-        background-color: #f1f1f1;
+        transform: translateX(-16px);
+    }.quantity-field {
+        width: 64px;
+        height: 27px;
+        padding: 5px;
+        text-align: center;
+        border: 1px solid;
+        border-radius: 0;
+        margin-top: 5px;
+    }.quantity-btn {
+        background-color: transparent;
         border: none;
         cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #555;
+    }.quantity-btn:hover {
+        color: #000;
+    }.quantity-btn:focus {
+        outline: none;
     }
-    .quantity-field {
-        width: 50px;
-        text-align: center;
-        border: none;
-        border-bottom: 1px solid #ccc;
+    .minus-btn {
+        transform: translate(19px, 1px);
+    }
+    .plus-btn {
+        transform: translate(-19px, 2px);
     }
     .cart-item-separator {
         border: none;
@@ -264,6 +285,15 @@ color: #496057;
     }.checkout-btn:hover {
         border-color: #fff;
         background-color: #000000e5;
+    }
+    /* Remove arrows from quantity input field */
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }input[type="number"] {
+        -moz-appearance: textfield;
+        appearance: textfield;
     }
 
 

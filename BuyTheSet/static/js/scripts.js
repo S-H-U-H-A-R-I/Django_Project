@@ -71,6 +71,13 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
+function truncateString(str, maxLength) {
+    if (str.length > maxLength) {
+        return str.slice(0, maxLength) + '...';
+    }
+    return str;
+}
+
 // Scroll to top button
 
 
@@ -98,11 +105,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="cart-item"> 
                     <img src="${item.product.image_url}" alt="${item.product.name}" class="cart-item-image">
                         <div class="cart-item-details">
-                            <h6>${item.product.name}</h6> 
+                            <h6 class="cart-item-name" title="${item.product.name}">${truncateString(item.product.name, 20)}</h6> 
                             <p class="fw-bold" style>R${item.product.price}</p> 
                             <div class="quantity-input">
                                 <button class=" quantity-btn minus-btn" data-product-id="${item.product.id}">-</button>
-                                <input type="number" class="quantity-field" value="${item.quantity}" data-product-id="${item.product.id}">
+                                <input type="number" class="quantity-field" value="${item.quantity}" data-product-id="${item.product.id}" max="${item.product.quantity}">
                                 <button class="quantity-btn plus-btn" data-product-id="${item.product.id}">+</button>
                             </div>
                         </div>
@@ -118,7 +125,7 @@ document.addEventListener('DOMContentLoaded', function() {
             var plusButtons = document.querySelectorAll('.plus-btn');
 
             quantityFields.forEach(field => {
-                field.addEventListener('input', debounce(updateQuantity, 1000));
+                field.addEventListener('input', updateQuantity);
             });
             minusButtons.forEach(btn => {
                 btn.addEventListener('click', decreaseQuantity);
@@ -137,17 +144,22 @@ function debounce(func, delay) {
     let timeoutId;
     return function(...args) {
         clearTimeout(timeoutId);
-        timoutId = setTimeout(() => {
+        timeoutId = setTimeout(() => {
             func.apply(this, args);
         }, delay);
     };
 }
 
+let updateQuantityTimeout;
+
 function updateQuantity(e) {
     var productId = e.target.dataset.productId;
     var quantity = parseInt(e.target.value);
     if (quantity >= 1) {
-        sendUpdateQuantityRequest(productId, quantity);
+        clearTimeout(updateQuantityTimeout);
+        updateQuantityTimeout = setTimeout(() => {
+            sendUpdateQuantityRequest(productId, quantity);
+        }, 500);
     }
 }
 
@@ -158,7 +170,10 @@ function decreaseQuantity(e) {
     if (quantity > 1) {
         quantity--;
         quantityField.value = quantity;
-        sendUpdateQuantityRequest(productId, quantity);
+        clearTimeout(updateQuantityTimeout);
+        updateQuantityTimeout = setTimeout(() => {
+            sendUpdateQuantityRequest(productId, quantity);
+        }, 500);
     }
 }
 
@@ -166,9 +181,16 @@ function increaseQuantity(e) {
     var productId = e.target.dataset.productId;
     var quantityField = document.querySelector(`.quantity-field[data-product-id="${productId}"]`);
     var quantity = parseInt(quantityField.value);
-    quantity++;
-    quantityField.value = quantity;
-    sendUpdateQuantityRequest(productId, quantity);
+    var maxQuantity = quantityField.max;
+    console.log(quantity, maxQuantity);
+    if (quantity < maxQuantity) {
+        quantity++;
+        quantityField.value = quantity;
+        clearTimeout(updateQuantityTimeout);
+        updateQuantityTimeout = setTimeout(() => {
+            sendUpdateQuantityRequest(productId, quantity);
+        }, 500);
+    }
 }
 
 function sendUpdateQuantityRequest(productId, quantity) {
