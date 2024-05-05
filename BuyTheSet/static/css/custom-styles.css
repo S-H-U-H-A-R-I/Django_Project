@@ -124,8 +124,7 @@ color: #496057;
     }
 
 
-
-    /* Cart */
+/****** Cart ******/
     .cart-icon-container,
     .profile-icon-container {
         position: relative;
@@ -260,6 +259,15 @@ color: #496057;
     }
     .plus-btn {
         transform: translate(-19px, 2px);
+    }
+    .remove-item {
+        position: relative;
+        transform: translate(0px, -38px);
+        cursor: pointer;
+        opacity: 0;
+        transition: opacity 0.5s ease-in-out;
+    }.cart-item:hover .remove-item {
+        opacity: 1;
     }
     .cart-item-separator {
         border: none;

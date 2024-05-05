@@ -87,67 +87,73 @@ document.addEventListener('DOMContentLoaded', function() {
 
     cartLink.addEventListener('click', function(e) {
         e.preventDefault();
-
-        // Send an AJAX request to fetch cart items and total
-        fetch('/cart/items/', {
-            method: 'GET',
-            headers: {
-                'X-requested-With': 'XMLHttpRequest',
-            },
-        })
-        .then(response => response.json())
-        .then(data => {
-            var cartItemsContainer = document.getElementById('cartItems');
-            cartItemsContainer.innerHTML = ''; // Clear existing cart items
-            // Create HTML markup for each cart item
-            data.cart_items.forEach((item, index) => {
-                var itemHtml = `
-                    <div class="cart-item"> 
-                    <img src="${item.product.image_url}" alt="${item.product.name}" class="cart-item-image">
-                        <div class="cart-item-details">
-                            <h6 class="cart-item-name" title="${item.product.name}">${truncateString(item.product.name, 20)}</h6> 
-                            <p class="fw-bold" style>R${item.product.price}</p> 
-                            <div class="quantity-input">
-                                <button class=" quantity-btn minus-btn" data-product-id="${item.product.id}">-</button>
-                                <input type="number" class="quantity-field" value="${item.quantity}" data-product-id="${item.product.id}" max="${item.product.quantity}">
-                                <button class="quantity-btn plus-btn" data-product-id="${item.product.id}">+</button>
-                            </div>
-                        </div>
-                    </div>
-                    ${index !== data.cart_items.length - 1 ? '<hr class="cart-item-separator">' : ''}
-                `;
-                cartItemsContainer.insertAdjacentHTML('beforeend', itemHtml);
-            });
-
-            // Attach event listeners to quantity buttons and fields
-            var quantityFields = document.querySelectorAll('.quantity-field');
-            var minusButtons = document.querySelectorAll('.minus-btn');
-            var plusButtons = document.querySelectorAll('.plus-btn');
-
-            quantityFields.forEach(field => {
-                field.addEventListener('input', updateQuantity);
-            });
-            minusButtons.forEach(btn => {
-                btn.addEventListener('click', decreaseQuantity);
-            });
-            plusButtons.forEach(btn => {
-                btn.addEventListener('click', increaseQuantity);
-            });
-        })
-        .catch(error => {
-            console.error('Error loading cart items:', error);
-        });
+        fetchCartItems();
     });
 });
 
-function debounce(func, delay) {
-    let timeoutId;
-    return function(...args) {
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => {
-            func.apply(this, args);
-        }, delay);
-    };
+function fetchCartItems() {
+    fetch('/cart/items/', {
+        method: 'GET',
+        headers: {
+            'X-requested-With': 'XMLHttpRequest',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        var cartItemsContainer = document.getElementById('cartItems');
+        cartItemsContainer.innerHTML = ''; // Clear existing cart items
+        data.cart_items.forEach((item, index) => {
+            var itemHtml = createCartItemHTML(item, index, data.cart_items.length);
+            cartItemsContainer.insertAdjacentHTML('beforeend', itemHtml);
+        });
+        attachQuantityListeners();
+        attachRemoveItemListeners();
+    })
+    .catch(error => {
+        console.error('Error loading cart items:', error);
+    });
+}
+
+function createCartItemHTML(item, index, cartItemsLength) {
+    return `
+        <div class="cart-item">
+            <img src="${item.product.image_url}" alt="${item.product.name}" class="cart-item-image">
+            <div class="cart-item-details">
+                <h6 class="cart-item-name" title="${item.product.name}">${truncateString(item.product.name, 20)}</h6>
+                <p class="fw-bold" style>R${item.product.price}</p>
+                <div class="quantity-input">
+                    <button class="quantity-btn minus-btn" data-product-id="${item.product.id}">-</button>
+                    <input type="number" class="quantity-field" value="${item.quantity}" data-product-id="${item.product.id}" max="${item.product.quantity}">
+                    <button class="quantity-btn plus-btn" data-product-id="${item.product.id}">+</button>
+                </div>
+            </div>
+            <i class="bi bi-x-circle remove-item" data-product-id="${item.product.id}"></i>
+        </div>
+        ${index !== cartItemsLength - 1 ? '<hr class="cart-item-separator">' : ''}
+    `;
+}
+
+function attachQuantityListeners() {
+    var quantityFields = document.querySelectorAll('.quantity-field');
+    var minusButtons = document.querySelectorAll('.minus-btn');
+    var plusButtons = document.querySelectorAll('.plus-btn');
+
+    quantityFields.forEach(field => {
+        field.addEventListener('input', updateQuantity);
+    });
+    minusButtons.forEach(btn => {
+        btn.addEventListener('click', decreaseQuantity);
+    });
+    plusButtons.forEach(btn => {
+        btn.addEventListener('click', increaseQuantity);
+    });
+}
+
+function attachRemoveItemListeners() {
+    var removeItemButtons = document.querySelectorAll('.remove-item');
+    removeItemButtons.forEach(btn => {
+        btn.addEventListener('click', removeItem);
+    });
 }
 
 let updateQuantityTimeout;
@@ -219,6 +225,42 @@ function sendUpdateQuantityRequest(productId, quantity) {
     });
 }
 
+function removeItem(e) {
+    var productId = e.target.dataset.productId;
+    sendRemoveItemRequest(productId);
+}
+
+function sendRemoveItemRequest(productId) {
+    fetch('/cart/delete/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body: JSON.stringify({
+            product_id: productId,
+        }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log('Item removed successfully');
+            fetchCartItems();
+            updateCartQuantity(data.cart_quantity);
+        } else {
+            console.error('Error removing item:', data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error removing item:', error);
+    });
+}
+
+function updateCartQuantity(quantity) {
+    var cartQuantityElement = document.getElementById('cart_quantity');
+    cartQuantityElement.textContent = quantity;
+}
+
 function getCookie(name) {
     var cookieValue = null;
     if (document.cookie && document.cookie!== '') {
@@ -233,7 +275,6 @@ function getCookie(name) {
     }
     return cookieValue;
 }
-
 
 
 

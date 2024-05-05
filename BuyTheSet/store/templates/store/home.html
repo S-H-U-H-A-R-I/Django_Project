@@ -4,7 +4,7 @@
 <section class="custom-py">
   <div class="container px-4 px-lg-5 mt-5">
     <div class="row">
-        <div class="col-md-3">
+        {% comment %} <div class="col-md-3">
             <!-- Sidebar -->
             <div class="sidebar">
                 <div class="sidebar-content">
@@ -17,8 +17,8 @@
                     <hr>
                 </div>
             </div>
-        </div>
-        <div class="col-md-9">
+        </div> {% endcomment %}
+        <div class="col-md-12">
             {% if products %}
                 <div class="row row-cols-1 row-cols-md-3 g-0">  
                     {% for product in products %}

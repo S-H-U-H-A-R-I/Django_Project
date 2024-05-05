@@ -75,18 +75,21 @@ def cart_items(request):
 
 def cart_delete(request):
     cart = CartManager(request)
-    if request.POST.get('action') == 'post':
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        product_id = data.get('product_id')
         try:
-            product_id = int(request.POST.get('product_id'))
             product = Product.objects.get(id=product_id)
             CartSerializer.remove_item(cart.cart, product_id)
-            success_message = f'{product.name} has been removed from your cart.'
-            response = {'success': True, 'message': success_message}
+            cart_quantity = cart.get_total_quantity()
+            response = JsonResponse({'success': True, 'cart_quantity': cart_quantity})
         except Product.DoesNotExist:
-            response = {'success': False, 'error': 'Product does not exist.'}
+            response = JsonResponse({'success': False, 'error': 'Product does not exist.'}, status=404)
         except Exception as e:
-            response = {'success': False, 'error': str(e)}
-        return JsonResponse(response)
+            response = JsonResponse({'success': False, 'error': str(e)}, status=500)
+        return response
+    else:
+        return JsonResponse({'success': False, 'error': 'Invalid request.'}, status=400)
 
 
 @csrf_exempt
