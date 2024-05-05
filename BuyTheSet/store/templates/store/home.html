@@ -23,8 +23,8 @@
                 <div class="row row-cols-1 row-cols-md-4 g-0">  
                     {% for product in products %}
                         <div class="col-md-4 mb-4 product-card">
-                            <a href="{% url 'product' product.id %}" class="text-decoration-none text-dark">
-                                <div class="card h-100">
+                            <div class="card h-100">
+                                <a href="{% url 'product' product.id %}" class="text-decoration-none text-dark">
                                     <!-- Product image-->
                                     <div id="productCarousel{{ product.id }}" class="carousel slide">
                                         <div class="carousel-inner">
@@ -38,25 +38,25 @@
                                             {% endfor %}
                                         </div>
                                     </div>
-                                    <!-- Product details-->
-                                    <div class="card-body p-4">
-                                        <div class="text-center">
-                                            <!-- Product name-->
-                                            <h6 class="product-name">{{ product.name }}</h6>
-                                            <!-- Product price-->
-                                            {% if product.is_sale %}
-                                            <span class="text-muted text-decoration-line-through">R{{ product.price }}</span>
-                                            R{{ product.sale_price }}
-                                            {% else %}
-                                            R{{ product.price }}
-                                            {% endif %}
-                                            <div>
-                                                <a href="#" class="btn btn-outline-dark">Add to Cart</a>
-                                            </div>
+                                </a>
+                                <!-- Product details-->
+                                <div class="card-body p-4">
+                                    <div class="text-center">
+                                        <!-- Product name-->
+                                        <h6 class="product-name">{{ product.name }}</h6>
+                                        <!-- Product price-->
+                                        {% if product.is_sale %}
+                                        <span class="text-muted text-decoration-line-through">R{{ product.price }}</span>
+                                        R{{ product.sale_price }}
+                                        {% else %}
+                                        R{{ product.price }}
+                                        {% endif %}
+                                        <div class="mt-2">
+                                            <button class="btn btn-outline-dark add-to-cart" data-product-id="{{ product.id }}">Add to Cart</button>
                                         </div>
                                     </div>
                                 </div>
-                            </a>
+                            </div>
                         </div>
                     {% endfor %}
                 </div>
@@ -76,7 +76,8 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         displayAlert("{{message}}", "{{alert_type}}")
-    })
+    });
+
 
     $(document).ready(function() {
         $('.carousel').each(function() {
@@ -92,6 +93,52 @@
     
             $carousel.mouseleave(function() {
                 clearInterval(interval); // Stop the interval when the mouse leaves
+            });
+        });
+    });
+
+    // Add product to cart
+    $(document).ready(function() {
+        $('.add-to-cart').click(function() {
+            var productId = $(this).data('product-id');
+            var quantity = 1;
+            $.ajax({
+                type: 'GET',
+                url: '{% url "cart_items" %}',
+                success: function(response) {
+                    var cartItems = response.cart_items;
+                    var itemExists = cartItems.some(function(item) {
+                        return item.product.id === productId;
+                    });
+
+                    if (itemExists) {
+                        // Do Nothing
+                    } else {
+                        $.ajax({
+                            type: 'POST',
+                            url: '{% url "cart_add" %}',
+                            data: {
+                                'product_id': productId,
+                                'product_qty': quantity,
+                                'csrfmiddlewaretoken': '{{ csrf_token }}'
+                            },
+                            success: function(response) {
+                                if (response.success) {
+                                    $('#cart_quantity').text(response.cart_quantity);
+                                    displayAlert(response.message, 'success');
+                                } else {
+                                    displayAlert(response.error, 'danger');
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                console.log(xhr.responseText);
+                            }
+                        });
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.log(xhr.responseText);
+                }
             });
         });
     });
