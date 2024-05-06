@@ -216,7 +216,8 @@ color: #496057;
     }
     .cart-item-details {
         flex: 1;
-    }.cart-item-details p, h6 {
+    }
+    .cart-item-details p, h6 {
         margin: 0 ;
     }
     .cart-item-name {
@@ -229,7 +230,8 @@ color: #496057;
         display: flex;
         align-items: center;
         transform: translateX(-16px);
-    }.quantity-field {
+    }
+    .quantity-field {
         width: 64px;
         height: 27px;
         padding: 5px;
