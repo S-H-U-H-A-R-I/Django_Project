@@ -65,6 +65,9 @@ class PaymentSerializer:
                 'quantity': item.quantity,
                 'total': item.product.sale_price * item.quantity if item.product.is_sale else item.product.price * item.quantity,
                 'image_url': item.product.image.url,
+                'product': {
+                    'quantity': item.product.quantity,
+                }
             }
             cart_items_data.append(item_data)
         return cart_items_data

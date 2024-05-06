@@ -35,15 +35,17 @@
         </div>
         <div class="col-md-5">
             <h4>Order Information</h4>
+            <hr class="cart-item-separator">
             <form id="order-form" action="{% url 'save_shipping_info' %}" method="POST">
                 {% csrf_token %}
                 <div id="shipping-fields">
                     {{ form.as_p }}
                 </div>
+                <hr class="cart-item-separator">
                 <div id="map" style="height: 400px; display: none;"></div>
                 <div class="container my-3 d-flex justify-content-between">
-                    <button type="button" class="btn btn-primary" id="paystack-button" onclick="saveOrderInfo()">Pay with Paystack</button>
-                    <button type="button" class="btn btn-primary" style="display: none;" id="pay-button" onclick="saveOrder()">Pay</button>
+                    <button type="button" class="btn btn-dark" id="paystack-button" onclick="saveOrderInfo()">Pay with Paystack</button>
+                    <button type="button" class="btn btn-dark" style="display: none;" id="pay-button" onclick="saveOrder()">Pay</button>
                     <div class="d-flex justify-content-between ">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" name="payment_method" id="cash-payment" value="cash">
@@ -136,6 +138,7 @@
         var plusBtns = document.querySelectorAll('.checkout-items-container .plus-btn');
         var isCollectCheckbox = document.getElementById('is-collect');
 
+
         let updateQuantityTimeout;
 
         quantityFields.forEach(field => {
@@ -143,13 +146,16 @@
             field.addEventListener('change', function() {
                 var productId = this.dataset.productId;
                 var quantity = parseInt(this.value);
-                if (quantity > 0) {
+                var maxQuantity = parseInt(this.max);
+                if (quantity > 0  && quantity <= maxQuantity) {
                     clearTimeout(updateQuantityTimeout);
                     updateQuantityTimeout = setTimeout(() => {
                         updateCheckoutQuantity(productId, quantity);
                         updateCartItemTotal(productId);
                         updateTotalAmount();
                     }, 500);
+                } else {
+                    
                 }
             });
         });
@@ -159,6 +165,11 @@
                 var productId = this.dataset.productId;
                 var quantityField = this.nextElementSibling;
                 var quantity = parseInt(quantityField.value);
+                var maxQuantity = parseInt(quantityField.max);
+                if (quantity > maxQuantity) {
+                    quantity = maxQuantity
+                    quantityField.value = quantity;
+                }
                 if (quantity > 1) {
                     quantity--;
                     quantityField.value = quantity;
@@ -177,14 +188,21 @@
                 var productId = this.dataset.productId;
                 var quantityField = this.previousElementSibling;
                 var quantity = parseInt(quantityField.value);
-                quantity++;
-                quantityField.value = quantity;
-                clearTimeout(updateQuantityTimeout);
-                updateQuantityTimeout = setTimeout(() => {
-                    updateCheckoutQuantity(productId, quantity);
-                    updateCartItemTotal(productId);
-                    updateTotalAmount();
-                }, 500);
+                var maxQuantity = parseInt(quantityField.max);
+                if (quantity > maxQuantity) {
+                    quantity = maxQuantity
+                    quantityField.value = quantity;
+                }
+                if (quantity < maxQuantity) {
+                    quantity++;
+                    quantityField.value = quantity;
+                    clearTimeout(updateQuantityTimeout);
+                    updateQuantityTimeout = setTimeout(() => {
+                        updateCheckoutQuantity(productId, quantity);
+                        updateCartItemTotal(productId);
+                        updateTotalAmount();
+                    }, 500);
+                }
             });
         });
 

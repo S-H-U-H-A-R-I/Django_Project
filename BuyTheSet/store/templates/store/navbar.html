@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top">
   <div class="container px-4 px-lg-5">
     <a class="navbar-brand text-uppercase logo text-dark" href="{% url 'home' %}">BuyTheSet</a>
-    {% if request.path != '/payments/checkout' %}
+    {% if request.path != '/payments/checkout/' %}
     <div class="search-container">
         <form class="d-flex align-items-center" action="{% url 'home' %}" method="get"> 
             {% csrf_token %}
@@ -15,7 +15,6 @@
         </form>
     </div>
     {% endif %}
-    {{request.path}}
     <div class="navbar-icons">
         <a href="#" class="nav-link cart-icon-container cart-link" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas" aria-controls="cartOffcanvas">
             <i class="bi bi-bag-fill"></i>
