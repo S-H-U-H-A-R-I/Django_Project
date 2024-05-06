@@ -44,8 +44,8 @@
                 <hr class="cart-item-separator">
                 <div id="map" style="height: 400px; display: none;"></div>
                 <div class="container my-3 d-flex justify-content-between">
-                    <button type="button" class="btn btn-dark" id="paystack-button" onclick="saveOrderInfo()">Pay with Paystack</button>
-                    <button type="button" class="btn btn-dark" style="display: none;" id="pay-button" onclick="saveOrder()">Pay</button>
+                    <button type="button" class="btn btn-dark" id="paystack-button" onclick="saveOrderInfo()">Proceed</button>
+                    <button type="button" class="btn btn-dark" style="display: none;" id="pay-button" onclick="saveOrder()">Proceed</button>
                     <div class="d-flex justify-content-between ">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" name="payment_method" id="cash-payment" value="cash">
@@ -310,14 +310,39 @@
         var formData = new FormData(form);
         var email = formData.get('email');
         var fullName = formData.get('full_name');
+        var phoneNumber = formData.get('phone_number');
+        var isCollect = formData.get('is_collect') === 'True';
+
+        clearErrors();
+
+        var errors = {};
+        if(!email) {
+            errors['email'] = 'Please enter your email address.';
+        }
+        if(!fullName) {
+            errors['full_name'] = 'Please enter your full name.';
+        }
+        if (!phoneNumber) {
+            errors['phone_number'] = 'Please enter your phone number.';
+        }
+        if (!isCollect && !address1) {
+            errors['address1'] = 'Please enter your address.';
+        }
+
+        if(Object.keys(errors).length > 0) {
+            displayErrors(errors);
+            return;
+        }
+        
+
         var firstName = fullName.split(' ')[0];
         var lastName = fullName.split(' ')[1];
-        var phoneNumber = formData.get('phone_number');
         var address1 = formData.get('address1');
         var address2 = formData.get('address2');
-        var isCollect = formData.get('is_collect') === 'True';
         var products = JSON.stringify(purchasedProducts);
         var shippingAddress = address1 + ', ' + address2;
+
+        showLoadingScreen();
 
         // Check for product availability
         $.ajax({
@@ -351,16 +376,19 @@
                         'csrfmiddlewaretoken': '{{ csrf_token }}',
                     },
                     success: (serverResponse) => {
+                        hideLoadingScreen();
                         // Redirect the user to the payment success page
                         window.location.href = "{% url 'payment_success' %}";
                     },
                     error: (xhr, status, error) => {
+                        hideLoadingScreen();
                         // Handle error here
                         console.error('Error saving order:', error);
                     }
                 });
             },
             error: (xhr, status, error) => {
+                hideLoadingScreen();
                 console.error('Error checking product availability:', error);
             }
         });
@@ -509,6 +537,35 @@
             }
         });
     }
+
+
+    function showLoadingScreen() {
+        // Create a loading indicator element
+        var loadingIndicator = document.createElement('div');
+        loadingIndicator.classList.add('loading-indicator');
+        loadingIndicator.innerHTML = '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>'
+
+        // Create a dimmer element
+        var dimmer = document.createElement('div');
+        dimmer.classList.add('dimmer');
+
+        // Append the loading indicator and the dimmer to the body
+        document.body.appendChild(loadingIndicator);
+        document.body.appendChild(dimmer);
+    }
+
+    function hideLoadingScreen() {
+        // Remove the loading indicator and the dimmer from the body
+        var loadingIndicator = document.querySelector('.loading-indicator');
+        var dimmer = document.querySelector('.dimmer');
+        if (loadingIndicator) {
+            loadingIndicator.remove();
+        }
+        if (dimmer) {
+            dimmer.remove();
+        }
+    }
+
 
    /* Google Maps */ 
     function initMap() {

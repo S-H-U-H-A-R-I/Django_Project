@@ -16,10 +16,12 @@
     </div>
     {% endif %}
     <div class="navbar-icons">
+        {% if request.path != '/payments/checkout/' %}
         <a href="#" class="nav-link cart-icon-container cart-link" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas" aria-controls="cartOffcanvas">
             <i class="bi bi-bag-fill"></i>
             <span id="cart_quantity" class="cart-quantity">{{ cart_quantity }}</span>
         </a>
+        {% endif %}
         <a href="#" class="nav-link profile-icon-container d-none d-lg-inline-block" id="profileDrowpdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             <i class="bi bi-person-circle"></i>
         </a>
