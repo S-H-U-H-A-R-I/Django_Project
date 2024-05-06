@@ -117,6 +117,13 @@
             var quantity = parseInt(quantityField.value);
             totalAmount += (price * quantity);
         });
+        var isCollectChecked = document.getElementById('is-collect').checked;
+        var shippingFee = parseFloat(document.getElementById('shipping-fee').innerText.split('R')[1]);
+        if (isCollectChecked) {
+            totalAmount -= shippingFee;
+        } else {
+            totalAmount += shippingFee;
+        }
         var totalAmountElement = document.getElementById('total-amount');
         totalAmountElement.textContent = totalAmount.toFixed(2);
     }
@@ -127,6 +134,7 @@
         var quantityFields = document.querySelectorAll('.checkout-items-container .quantity-field');
         var minusBtns = document.querySelectorAll('.checkout-items-container .minus-btn');
         var plusBtns = document.querySelectorAll('.checkout-items-container .plus-btn');
+        var isCollectCheckbox = document.getElementById('is-collect');
 
         let updateQuantityTimeout;
 
@@ -178,6 +186,10 @@
                     updateTotalAmount();
                 }, 500);
             });
+        });
+
+        isCollectCheckbox.addEventListener('change', function() {
+            updateTotalAmount();
         });
 
         updateTotalAmount();
@@ -403,7 +415,21 @@
         var lastName = paystackForm.querySelector('input[name="last_name"]').value;
         var phone = paystackForm.querySelector('input[name="phone"]').value;
         var isCollect = document.getElementById('is-collect').checked;
-        var totalAmount = isCollect? totalWithoutShipping : cartTotal;
+
+        // Calculate total amount
+        var totalAmount = 0;
+        var cartItems = document.querySelectorAll('.cart-item');
+        cartItems.forEach(function(item) {
+            var quantityField = item.querySelector('.quantity-field');
+            var price = parseFloat(quantityField.dataset.price);
+            var quantity = parseInt(quantityField.value);
+            totalAmount += (price * quantity);
+            console.log(totalAmount)
+        });
+
+        var shippingFee = parseFloat(document.getElementById('shipping-fee').innerText.split('R')[1]);
+        totalAmount += shippingFee;
+
         // Check for product availability before initiating payment
         $.ajax({
             type: "POST",
