@@ -1,4 +1,5 @@
 import json
+from icecream import ic
 from decimal import Decimal
 from .forms import ShippingAddressForm
 from .models import ShippingAddress
@@ -58,10 +59,12 @@ class PaymentSerializer:
         cart_items_data = []
         for item in cart_items:
             item_data = {
+                'id': item.product.id,
                 'name': item.product.name,
                 'price': item.product.sale_price if item.product.is_sale else item.product.price,
                 'quantity': item.quantity,
                 'total': item.product.sale_price * item.quantity if item.product.is_sale else item.product.price * item.quantity,
+                'image_url': item.product.image.url,
             }
             cart_items_data.append(item_data)
         return cart_items_data

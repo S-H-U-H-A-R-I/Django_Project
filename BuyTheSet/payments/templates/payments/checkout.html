@@ -1,42 +1,39 @@
 {% extends 'store/base.html' %}
 {% block content %}
-<header class="bg-dark py-5">
-    <script src="https://js.paystack.co/v2/inline.js"></script>
-    <div class="container px-4 px-lg-5 my-5">
-        <div class="text-center text-white">
-            <h1 class="display-4 fw-bolder">Order Summary</h1>
-        </div>
-    </div>
-</header>
-<div class="container my-5">
+<div class="container custom-my">
     <div class="row">
-        <div class="col-md-8">
-            <table class="table table-bordered">
-                <thead class="thead-light">
-                    <tr>
-                        <th>Product</th>
-                        <th>Price</th>
-                        <th>Quantity</th>
-                        <th>Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in cart_items_data %}
-                    <tr>
-                        <td>{{ item.name }}</td>
-                        <td>R{{ item.price }}</td>
-                        <td>{{ item.quantity}}</td>
-                        <td>R{{ item.total }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <div class="col-md-7">
+            <h4>Order Summary</h4>
+            <hr class="cart-item-separator">
+            <div id="checkoutItems" class="checkout-items-container">
+                {% for item in cart_items_data %}
+                <div class="cart-item" data-product-id="{{ item.id }}">
+                    <a href="/product/{{item.id}}" class="cart-item-link">
+                        <img src="{{ item.image_url }}" alt="{{ item.name }}" class="cart-item-image">
+                    </a>
+                    <div class="cart-item-details">
+                        <h6 title="{{ item.name }}">{{ item.name }}</h6>
+                        <p class="fw-bold">R{{ item.price }}</p>
+                    </div>
+                    <div class="quantity-input">
+                        <button class="quantity-btn minus-btn" data-product-id="{{ item.id }}">-</button>
+                        <input type="number" class="quantity-field" value="{{ item.quantity }}" data-product-id="{{ item.id }}" data-price="{{ item.price }}" max="{{ item.product.quantity }}">
+                        <button class="quantity-btn plus-btn" data-product-id="{{ item.id }}">+</button>
+                    </div>
+                    <div class="cart-item-total">
+                        <p class="fw-bold">R<span class="total-price">0.00</span></p>
+                    </div>
+                    <i class="bi bi-x-circle remove-item" data-product-id="{{ item.id }}" onclick="removeCheckoutItem(event)"></i>
+                </div>
+                <hr class="cart-item-separator">
+                {% endfor %}
+            </div>
             <div class="text-right">
                 <h5 id="shipping-fee">Shipping: R{{ default_shipping_fee }}</h5>
                 <h4>Total: R<span id="total-amount">{{ cart_total }}</span></h4>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-5">
             <h4>Order Information</h4>
             <form id="order-form" action="{% url 'save_shipping_info' %}" method="POST">
                 {% csrf_token %}
@@ -68,6 +65,154 @@
         </div>
     </div>
 </div>
+<!--Quantity Update Script-->
+<script>
+    function updateCheckoutQuantity(productId, quantity) {
+        // send an AJAX request to the server to update the quantity of the product
+        fetch('/cart/update/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken'),
+            },
+            body: JSON.stringify({
+                product_id: productId,
+                quantity: quantity,
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            // if the response is a success, update the cart items
+            if (data.success) {
+                console.log('quantity updated successfully');
+                updateCartItemTotal(productId)
+            } else {
+                console.error('Error updating quantity', data.error);
+            }
+        })
+        .catch(error => {
+            console.log('Error updating quantity', error);
+        });
+    }
+
+
+    // Update cart item total
+    function updateCartItemTotal(productId) {
+        var cartItem = document.querySelector(`.cart-item[data-product-id="${productId}"]`);
+        if (cartItem) {
+            var quantityField = cartItem.querySelector('.quantity-field');
+            var totalPriceElement = cartItem.querySelector('.total-price');
+            var price = parseFloat(quantityField.dataset.price);
+            var quantity = parseInt(quantityField.value);
+            totalPriceElement.textContent = (price * quantity).toFixed(2);
+        }
+    }
+
+    function updateTotalAmount() {
+        var totalAmount = 0;
+        var cartItems = document.querySelectorAll('.cart-item');
+        cartItems.forEach(function(item) {
+            var quantityField = item.querySelector('.quantity-field');
+            var price = parseFloat(quantityField.dataset.price);
+            var quantity = parseInt(quantityField.value);
+            totalAmount += (price * quantity);
+        });
+        var totalAmountElement = document.getElementById('total-amount');
+        totalAmountElement.textContent = totalAmount.toFixed(2);
+    }
+
+
+    // Attach event listeners to the quantity buttons and fields
+    document.addEventListener('DOMContentLoaded', function() {
+        var quantityFields = document.querySelectorAll('.checkout-items-container .quantity-field');
+        var minusBtns = document.querySelectorAll('.checkout-items-container .minus-btn');
+        var plusBtns = document.querySelectorAll('.checkout-items-container .plus-btn');
+
+        let updateQuantityTimeout;
+
+        quantityFields.forEach(field => {
+            updateCartItemTotal(field.dataset.productId);
+            field.addEventListener('change', function() {
+                var productId = this.dataset.productId;
+                var quantity = parseInt(this.value);
+                if (quantity > 0) {
+                    clearTimeout(updateQuantityTimeout);
+                    updateQuantityTimeout = setTimeout(() => {
+                        updateCheckoutQuantity(productId, quantity);
+                        updateCartItemTotal(productId);
+                        updateTotalAmount();
+                    }, 500);
+                }
+            });
+        });
+
+        minusBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                var productId = this.dataset.productId;
+                var quantityField = this.nextElementSibling;
+                var quantity = parseInt(quantityField.value);
+                if (quantity > 1) {
+                    quantity--;
+                    quantityField.value = quantity;
+                    clearTimeout(updateQuantityTimeout);
+                    updateQuantityTimeout = setTimeout(() => {
+                        updateCheckoutQuantity(productId, quantity);
+                        updateCartItemTotal(productId);
+                        updateTotalAmount();
+                    }, 500);
+                }
+            });
+        });
+
+        plusBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                var productId = this.dataset.productId;
+                var quantityField = this.previousElementSibling;
+                var quantity = parseInt(quantityField.value);
+                quantity++;
+                quantityField.value = quantity;
+                clearTimeout(updateQuantityTimeout);
+                updateQuantityTimeout = setTimeout(() => {
+                    updateCheckoutQuantity(productId, quantity);
+                    updateCartItemTotal(productId);
+                    updateTotalAmount();
+                }, 500);
+            });
+        });
+        
+        updateTotalAmount();
+    });
+
+
+    // Remove item from checkout
+    function removeCheckoutItem(event) {
+        var productId = event.target.dataset.productId;
+
+        // Send an AJAX request to the server to remove the item
+        fetch('/cart/delete/', {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken'),
+            },
+            body: JSON.stringify({
+                product_id: productId,
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log('Item removed successfully');
+                location.reload();
+            } else {
+                console.error('Error removing item', data.error); 
+            }
+        })
+        .catch(error => {
+            console.error('Error removing item:', error)
+        });
+    }
+</script>
  <!--Google Maps Javascript API-->
 <script>
     // Get the purchased product details and assign it to a JavaScript variable
@@ -105,7 +250,7 @@
         var address1Field = document.getElementById('id_address1').parentNode;
         var address2Field = document.getElementById('id_address2').parentNode;
         var shippingFee = document.getElementById('shipping-fee');
-        var totalAmount = document.getElementById('total-amkount');
+        var totalAmount = document.getElementById('total-amount');
         if (isCollectChecked) {
             address1Field.classList.add('d-none');
             address2Field.classList.add('d-none');

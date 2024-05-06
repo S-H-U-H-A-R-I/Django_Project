@@ -117,10 +117,12 @@ function fetchCartItems() {
 function createCartItemHTML(item, index, cartItemsLength) {
     return `
         <div class="cart-item">
-            <img src="${item.product.image_url}" alt="${item.product.name}" class="cart-item-image">
+            <a href="/product/${item.product.id}/" class="cart-item-link">
+                <img src="${item.product.image_url}" alt="${item.product.name}" class="cart-item-image">
+            </a>
             <div class="cart-item-details">
                 <h6 class="cart-item-name" title="${item.product.name}">${truncateString(item.product.name, 20)}</h6>
-                <p class="fw-bold" style>R${item.product.price}</p>
+                <p class="fw-bold">R${item.product.is_sale ? item.product.sale_price : item.product.price} </p>
                 <div class="quantity-input">
                     <button class="quantity-btn minus-btn" data-product-id="${item.product.id}">-</button>
                     <input type="number" class="quantity-field" value="${item.quantity}" data-product-id="${item.product.id}" max="${item.product.quantity}">
@@ -134,9 +136,9 @@ function createCartItemHTML(item, index, cartItemsLength) {
 }
 
 function attachQuantityListeners() {
-    var quantityFields = document.querySelectorAll('.quantity-field');
-    var minusButtons = document.querySelectorAll('.minus-btn');
-    var plusButtons = document.querySelectorAll('.plus-btn');
+    var quantityFields = document.querySelectorAll('.offcanvas .quantity-field');
+    var minusButtons = document.querySelectorAll('.offcanvas .minus-btn');
+    var plusButtons = document.querySelectorAll('.offcanvas .plus-btn');
 
     quantityFields.forEach(field => {
         field.addEventListener('input', updateQuantity);
@@ -275,7 +277,6 @@ function getCookie(name) {
     }
     return cookieValue;
 }
-
 
 
 // Reload page if it is loaded from back/forward cache
