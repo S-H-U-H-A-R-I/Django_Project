@@ -1,10 +1,10 @@
 {% extends 'store/base.html' %}
 {% block content %}
-<div class="container custom-my">
+<div class="container custom-my checkout-container">
     <div class="row">
         <div class="col-md-7">
-            <h4>Order Summary</h4>
-            <hr class="cart-item-separator">
+            <h4>ORDER SUMMARY</h4>
+            <hr class="cart-item-separator heading-separator">
             <div id="checkoutItems" class="checkout-items-container">
                 {% for item in cart_items_data %}
                 <div class="cart-item" data-product-id="{{ item.id }}">
@@ -28,13 +28,14 @@
                 <hr class="cart-item-separator">
                 {% endfor %}
             </div>
+            <hr class="cart-item-separator">
             <div class="text-right">
-                <h5 id="shipping-fee">Shipping: R{{ default_shipping_fee }}</h5>
-                <h4>Total: R<span id="total-amount">{{ cart_total }}</span></h4>
+                <h7 id="shipping-fee">Delivery: R{{ default_shipping_fee }}</h7>
+                <h5>Total: R<span id="total-amount">{{ cart_total }}</span></h5>
             </div>
         </div>
         <div class="col-md-5">
-            <h4>Order Information</h4>
+            <h4>ORDER INFORMATION</h4>
             <hr class="cart-item-separator">
             <form id="order-form" action="{% url 'save_shipping_info' %}" method="POST">
                 {% csrf_token %}

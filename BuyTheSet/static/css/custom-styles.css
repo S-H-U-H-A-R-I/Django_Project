@@ -339,6 +339,7 @@ color: #496057;
     .checkout-btn {
         background-color: #000;
         border-color: #000;
+        border-radius: 0;
     }.checkout-btn:hover {
         border-color: #fff;
         background-color: #000000e5;
@@ -496,6 +497,8 @@ color: #496057;
     #shipping-fields .form-control {
         border-radius: 0;
         border: none;
+    }#shipping-fields .form-control::placeholder {
+        color: #b6b6b6;
     }#shipping-fields .form-control:focus {
         border: none;
         border-bottom: 1px solid #333;
