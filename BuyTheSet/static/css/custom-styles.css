@@ -496,6 +496,14 @@ color: #496057;
     }#order-form .btn-dark:hover {
         background-color: #000000e5;
         border: none;
+    }.checkout-checkbox .form-check-input {
+        border-radius: 0;
+    }.checkout-checkbox .form-check-input:checked{
+        border: #000;
+        border-radius: 0;
+        background-color: #000;
+    }.checkout-checkbox .form-check-input:focus {
+        box-shadow: none;
     }
     .loading-indicator {
         position: fixed;
