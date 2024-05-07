@@ -23,53 +23,51 @@
   </head>
 
   <body>
-    <div class="site-content">
-        {% include 'store/navbar.html' %}
-        <!-- Alerts -->
-        {% if message %}
-            <div id="alert-container" class="position-fixed end-0 m-3" style="z-index: 9999;"></div>
-        {% endif %}
-        <!-- Block content -->
-        {% block content %}
+    {% include 'store/navbar.html' %}
+    <!-- Alerts -->
+    {% if message %}
+        <div id="alert-container" class="position-fixed end-0 m-3" style="z-index: 9999;"></div>
+    {% endif %}
+    <!-- Block content -->
+    {% block content %}
 
-        {% endblock %}
-        <!-- Footer -->
-        <footer class="py-5 bg-dark">
-        <div class="container">
-            <p class="m-0 text-center text-white"><a href="mailto:buythesetcpt@gmail.com" style="color: #fff;">buythesetcpt@gmail.com</a></p>
+    {% endblock %}
+    <!-- Footer -->
+    <footer class="py-5 bg-dark">
+    <div class="container">
+        <p class="m-0 text-center text-white"><a href="mailto:buythesetcpt@gmail.com" style="color: #fff;">buythesetcpt@gmail.com</a></p>
+    </div>
+    </footer>
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="mobile-menu d-lg-none">
+        <button type="button" class="mobile-menu-close" id="mobileMenuClose">
+            <i class="bi bi-chevron-bar-up"></i>
+        </button>
+        <div class="mobile-menu-content">
+        <a class="dropdown-item" href="#">Login</a>
+        <a class="dropdown-item" href="#">Register</a>
+        <a class="dropdown-item" href="#">FAQ</a>
+        <a class="dropdown-item" href="#">Logout</a>
+        <a class="dropdown-item" href="#">Account</a>
+        <a class="dropdown-item" href="#">Contact</a>
         </div>
-        </footer>
-        <!-- Mobile Menu -->
-        <div id="mobileMenu" class="mobile-menu d-lg-none">
-            <button type="button" class="mobile-menu-close" id="mobileMenuClose">
-                <i class="bi bi-chevron-bar-up"></i>
+    </div>
+    <!-- Cart Sidebar -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="cartOffcanvas" aria-labelledby="cartOffcanvasLabel">
+        <div class="offcanvas-header">
+            <button type="button" class="custom-btn-close" data-bs-dismiss="offcanvas" aria-label="Close">
+                <i class="bi bi-chevron-right"></i>
             </button>
-            <div class="mobile-menu-content">
-            <a class="dropdown-item" href="#">Login</a>
-            <a class="dropdown-item" href="#">Register</a>
-            <a class="dropdown-item" href="#">FAQ</a>
-            <a class="dropdown-item" href="#">Logout</a>
-            <a class="dropdown-item" href="#">Account</a>
-            <a class="dropdown-item" href="#">Contact</a>
-            </div>
+            <h5 id="cartOffcanvasLabel" class="offcanvas-title mx-auto">Cart</h5>
         </div>
-        <!-- Cart Sidebar -->
-        <div class="offcanvas offcanvas-end" tabindex="-1" id="cartOffcanvas" aria-labelledby="cartOffcanvasLabel">
-            <div class="offcanvas-header">
-                <button type="button" class="custom-btn-close" data-bs-dismiss="offcanvas" aria-label="Close">
-                    <i class="bi bi-chevron-right"></i>
-                </button>
-                <h5 id="cartOffcanvasLabel" class="offcanvas-title mx-auto">Cart</h5>
-            </div>
-            <hr class="cart-header-line">
-            <div class="offcanvas-body">
-                <div id="cartItems" class="cart-items-container"></div>
-            </div>
-            <div class="offcanvas-filler"></div>
-            <div class="offcanvas-footer">
-                <div class="d-flex justify-content-between align-items-center checkout-btn-container">
-                    <a href="{% url 'checkout' %}" class="btn btn-dark w-100 checkout-btn">Checkout</a>
-                </div>
+        <hr class="cart-header-line">
+        <div class="offcanvas-body">
+            <div id="cartItems" class="cart-items-container"></div>
+        </div>
+        <div class="offcanvas-filler"></div>
+        <div class="offcanvas-footer">
+            <div class="d-flex justify-content-between align-items-center checkout-btn-container">
+                <a href="{% url 'checkout' %}" class="btn btn-dark w-100 checkout-btn">Checkout</a>
             </div>
         </div>
     </div>

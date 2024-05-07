@@ -2,21 +2,6 @@ a {
     text-decoration: none ;
 }
 
-html, body {
-    height: 100%;
-    margin: 0;
-}
-
-body {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-}
-
-.site-content {
-    flex: 1;
-}
-
 *::-webkit-scrollbar,
 *::before::-webkit-scrollbar,
 *::after::-webkit-scrollbar {
