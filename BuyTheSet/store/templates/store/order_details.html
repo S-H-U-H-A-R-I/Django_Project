@@ -1,21 +1,13 @@
 {% extends 'store/base.html' %}
 
 {% block content %}
-<header class="bg-dark py-5">
-    <div class="container px-4 px-lg-5 my-5">
-        <div class="text-center text-white">
-            <h1 class="display-4 fw-bolder">Order Details</h1>
-        </div>
-    </div>
-</header>
-<div class="container">
+<div class="container custom-my">
   <h2>Order Details</h2>
   <div class="card">
     <div class="card-body">
       <h5 class="card-title">Order #{{ order.id }}</h5>
-      <p class="card-text">
+      <p class="card-text" style="margin-bottom: 0;">
         <strong>Order Date:</strong> {{ order.date_ordered }}<br>
-        <strong>Customer:</strong> {{ order.user.full_name }}<br>
         <strong>Email:</strong> {{ order.user.email }}<br>
         <strong>Shipping Address:</strong><br>
         {{ order.shipping_address|linebreaks }}

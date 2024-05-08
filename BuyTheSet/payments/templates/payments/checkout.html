@@ -373,7 +373,7 @@
                         'shipping_address': $('#id_address1').val() + ', ' + $('#id_address2').val(),
                         'is_collect': isCollect,
                         'payment_method': 'cash',
-                        'total_owed': total_owed,
+                        'amount': total_owed,
                         'csrfmiddlewaretoken': '{{ csrf_token }}',
                     },
                     success: (serverResponse) => {

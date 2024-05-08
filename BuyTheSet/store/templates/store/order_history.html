@@ -25,10 +25,10 @@
                     </div>
                     <div>
                         <p class="mb-0 me-4"><strong>Payment status:</strong></p>
-                        {% if order.is_delivered %}
-                        <p>Paid</p>
-                        {% else %}
+                        {% if order.payment_method == 'cash' and not order.is_delivered%}
                         <p>Pending...</p>
+                        {% else %}
+                        <p>Paid</p>
                         {% endif %}
                     </div>
                     {% if order.is_delivered %}

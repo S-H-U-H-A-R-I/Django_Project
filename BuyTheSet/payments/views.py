@@ -107,7 +107,6 @@ def save_order(request):
         amount = request.POST.get('amount')
         shipping_address = request.POST.get('shipping_address', '')
         is_collect = request.POST.get('is_collect') == 'true'
-        total_owed = request.POST.get('total_owed')
         
         with transaction.atomic():
             # Create a new Order instance
@@ -119,7 +118,7 @@ def save_order(request):
                 amount_paid=Decimal(amount) if payment_method == 'paystack' else Decimal(0),
                 is_collect=is_collect,
                 payment_method=payment_method,
-                total_amount=total_owed,
+                total_amount=Decimal(amount),
             )
             order.save()
             # Create OrderItem instances for each purchased product
