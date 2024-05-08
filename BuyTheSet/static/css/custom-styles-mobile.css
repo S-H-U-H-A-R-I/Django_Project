@@ -635,4 +635,29 @@
         border-color: #fff;
         background: #000;
     }
+
+
+
+/***** Register Page *****/
+
+    .register-container input {
+        border-radius: 0;
+        border: none;
+    }.register-container input::placeholder {
+        color: #b6b6b6;
+    }.register-container input:focus {
+        border: none;
+        border-bottom: 1px solid #333;
+        box-shadow: none;
+    }.register-container input:focus::placeholder {
+        color: #333;
+    }
+    .register-container button {
+        background: #000;
+        border: 1px solid #000;
+        border-radius: 0;
+    }.register-container button:hover {
+        background-color: #000;
+        border-color: #fff;
+    }
 }

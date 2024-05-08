@@ -39,10 +39,8 @@ def register_user(request):
                 return redirect('home')
             except IntegrityError:
                 messages.error(request, "Username already exists", "warning")
-                return render(request,'register.html', {'form': form})
         else:
             messages.error(request, "Please correct the error below.", "warning")
-            return render(request, 'register.html', {'form': form})
     else:  
         form = SignUpForm()    
     return render(request, 'register.html', {'form': form})

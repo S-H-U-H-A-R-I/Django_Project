@@ -1,28 +1,23 @@
 {% extends 'store/base.html' %} {% block content %}
-<!-- Header -->
-<header class="bg-dark py-5">
-  <div class="container px-4 px-lg-5 my-5">
-    <div class="text-center text-white">
-      <h1 class="display-4 fw-bolder">Register</h1>
-      <p class="lead fw-normal text-white-50 mb-0">Regsiter</p>
-    </div>
-  </div>
-</header>
-<br />
 <!-- Form -->
-<div class="container">
+<div class="container custom-my register-container">
   <div class="row">
     <div class="col-md-6 offset-md-3">
       <form method="POST" action="{% url 'register' %}">
         {% csrf_token %} 
-        {{ form.non_field_errors }}
-        {{ form.email.errors }}
-        {{ form.as_p }}
+        {% for field in form %}
+            <div class="form-group">
+                {{ field.label_tag }}
+                {{ field }}
+                {% if field.errors %}
+                    <small class="text-danger">{{ field.errors|join:", " }}</small>
+                {% endif %}
+            </div>
+        {% endfor %}
         <br />
         <button type="submit" class="btn btn-secondary">Register</button>
       </form>
     </div>
   </div>
 </div>
-<br />
 {% endblock content %}
