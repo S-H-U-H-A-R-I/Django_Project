@@ -426,6 +426,7 @@
     
 
 /***** Checkout Page *****/
+
     .custom-my {
         margin-top: 1rem;
         margin-bottom: 7rem;
@@ -538,6 +539,7 @@
 
 
 /***** Order_history Page *****/
+
     .order-items-container {
         overflow-x: auto;
         white-space: nowrap;
@@ -548,6 +550,7 @@
 
 
 /***** Order_details Page *****/
+
     textarea#shipping_address {
         width: 100%;
     }
@@ -560,6 +563,7 @@
 
 
 /* Remove arrows from quantity input field */
+
     input[type="number"]::-webkit-inner-spin-button,
     input[type="number"]::-webkit-outer-spin-button {
         -webkit-appearance: none;
@@ -606,5 +610,29 @@
         background: #000;
         color: #fff;
         border-radius: 0;
+    }
+
+
+/***** Update_password Page *****/
+
+    .password-change-container input {
+        border-radius: 0;
+        border: none;
+    }.password-change-container input::placeholder {
+        color: #b6b6b6;
+    }.password-change-container input:focus {
+        border: none;
+        border-bottom: 1px solid #333;
+        box-shadow: none;
+    }.password-change-container input:focus::placeholder {
+        color: #333;
+    }
+    .password-change-container button {
+        background: #000;
+        border: 1px solid #000;
+        border-radius: 0;
+    }.password-change-container button:hover {
+        border-color: #fff;
+        background: #000;
     }
 }

@@ -101,12 +101,10 @@ def update_password(request):
                 user = form.save()
                 update_session_auth_hash(request, user)
                 return redirect('home')
-            else:
-                return redirect('update_password')
         else:
             form = ChangePasswordForm(current_user)
-            context = {'form': form}
-            return render(request, "update_password.html", context)       
+        context = {'form': form}
+        return render(request, "update_password.html", context)       
     else:
         return redirect('login')        
 

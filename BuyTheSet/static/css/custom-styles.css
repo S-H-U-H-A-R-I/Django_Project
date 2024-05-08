@@ -673,6 +673,30 @@ color: #496057;
         color: #fff;
         border-radius: 0;
     }
+
+
+/***** Update_password Page *****/
+
+    .password-change-container input {
+        border-radius: 0;
+        border: none;
+    }.password-change-container input::placeholder {
+        color: #b6b6b6;
+    }.password-change-container input:focus {
+        border: none;
+        border-bottom: 1px solid #333;
+        box-shadow: none;
+    }.password-change-container input:focus::placeholder {
+        color: #333;
+    }
+    .password-change-container button {
+        background: #000;
+        border: 1px solid #000;
+        border-radius: 0;
+    }.password-change-container button:hover {
+        border-color: #fff;
+        background: #000;
+    }
   
   
 }
