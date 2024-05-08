@@ -660,4 +660,29 @@
         background-color: #000;
         border-color: #fff;
     }
+
+
+
+/***** Login Page *****/
+
+    .login-container input {
+        border-radius: 0;
+        border: none;
+    }.login-container input::placeholder {
+        color: #b6b6b6;
+    }.login-container input:focus {
+        border: none;
+        border-bottom: 1px solid #333;
+        box-shadow: none;
+    }.login-container input:focus::placeholder {
+        color: #333;
+    }
+    .login-container button {
+        background-color: #000;
+        border: 1px solid #000;
+        border-radius: 0;
+    }.login-container button:hover {
+        background-color: #000;
+        border-color: #fff;
+    }
 }

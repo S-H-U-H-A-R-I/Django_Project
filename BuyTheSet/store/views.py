@@ -53,21 +53,10 @@ def login_user(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            success_message = 'You have logged in successfully'
-            alert_type ='success'
-            request.session['message'] = success_message
-            request.session['alert_type'] = alert_type
             return redirect('home')
         else:
-            error_message = 'Username or Password is incorrect'
-            alert_type = 'danger'
-            context = {
-                'message': error_message,
-                'alert_type': alert_type
-            }
-            return render(request, 'login.html', context)
-    else:
-        return render(request, 'login.html')
+            messages.error(request, "Invalid username or password")
+    return render(request, 'login.html')
 
 
 def update_info(request):

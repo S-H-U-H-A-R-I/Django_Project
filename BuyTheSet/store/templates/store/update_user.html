@@ -1,15 +1,18 @@
 {% extends 'store/base.html' %} {% block content %}
   <!-- Form -->
-    <div class="container custom-my user-info-container">
-        <div class="row">
-            <div class="col-md-6 offset-md-3">
-                <form id="updateUserForm" method="POST" action="{% url 'update_user' %}">
-                    {% csrf_token %} {{ user_form.as_p }}
-                    <br />
-                </form>
-                <div class="button-container">
-                    <button id="updateBtn" class="btn btn-success">Update</button>
-                    <a href="{% url 'update_password' %}" class="btn btn-secondary">Update Password</a>
+    <div class="container custom-my user-info-container d-flex align-items-center justify-content-center" style="min-height: calc(100vh - 400px);">
+        <div class="row justify-content-center w-100">
+            <div class="col-12 col-md-8 col-lg-6">
+                <div class="card shadow">
+                    <div class="card-body d-flex flex-column align-items-center">
+                        <form id="updateUserForm" method="POST" action="{% url 'update_user' %}">
+                            {% csrf_token %} {{ user_form.as_p }}
+                        </form>
+                        <div class="button-container">
+                            <button id="updateBtn" class="btn btn-success">Update</button>
+                            <a href="{% url 'update_password' %}" class="btn btn-secondary">Update Password</a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
