@@ -568,4 +568,38 @@
         -moz-appearance: textfield;
         appearance: textfield;
     }
+
+
+/***** Update_user Page *****/
+    .user-info-container form p input {
+        border-radius: 0;
+        border: none;
+    }.user-info-container form p input::placeholder {
+        color: #b6b6b6;
+    }.user-info-container form p input:focus {
+        border: none;
+        border-bottom: 1px solid #333;
+        box-shadow: none;
+    }.user-info-container form p input:focus::placeholder {
+        color: #333;
+    }
+    .user-info-container form button {
+        background: #000;
+        border: 1px solid #000;
+        border-radius: 0;
+    }.user-info-container form button:hover {
+        background: #000;
+        border: none;
+        border-radius: 0;
+    }
+    .user-info-container a.btn {
+        background: #fff;
+        color: #000;
+        border-radius: 0;
+    }.user-info-container a.btn:focus {
+        background: #000;
+        color: #fff;
+        border-radius: 0;
+        border: none;
+    }
 }
