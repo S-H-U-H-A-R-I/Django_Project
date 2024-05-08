@@ -36,7 +36,7 @@ def register_user(request):
                 user = authenticate(username=user.username, password=password)
                 login(request, user)
                 messages.success(request, "You have registered and logged in successfully")
-                return redirect('update_info')
+                return redirect('home')
             except IntegrityError:
                 messages.error(request, "Username already exists", "warning")
                 return render(request,'register.html', {'form': form})
@@ -100,18 +100,14 @@ def update_password(request):
             if form.is_valid():
                 user = form.save()
                 update_session_auth_hash(request, user)
-                messages.success(request, "Your password has been updated successfully.", "success")
                 return redirect('home')
             else:
-                for error in list(form.errors.values()):
-                    messages.error(request, error[0], "danger")
                 return redirect('update_password')
         else:
             form = ChangePasswordForm(current_user)
             context = {'form': form}
             return render(request, "update_password.html", context)       
     else:
-        messages.error(request, "You must be logged in to update your password.", "danger")
         return redirect('login')        
 
 
@@ -123,10 +119,7 @@ def update_user(request):
             if user_form.is_valid():
                 user_form.save()
                 login(request, current_user)
-                messages.success(request, "Your profile has been updated successfully.")
                 return redirect('home')
-            else:
-                messages.error(request, "Please correct the error below.", "warning")
         else:
             user_form = UpdateUserform(instance=current_user)
             context = {
@@ -134,13 +127,11 @@ def update_user(request):
             }
             return render(request, "update_user.html", context)
     else:
-        messages.error(request, "You must be logged in to update your profile.")
         return redirect('login')
     
     
 def order_history(request):
     if not request.user.is_authenticated:
-        messages.error(request, "You must be logged in to view your order history.", "danger")
         return redirect('home')
     orders = Order.objects.filter(user=request.user).order_by("-date_ordered")
     context = {
@@ -151,7 +142,6 @@ def order_history(request):
 
 def order_details(request, order_id):
     if not request.user.is_authenticated:
-        messages.error(request, "You must be logged in to view your order.")
         return redirect('home')
     order = get_object_or_404(Order, id=order_id, user=request.user)
     context = {

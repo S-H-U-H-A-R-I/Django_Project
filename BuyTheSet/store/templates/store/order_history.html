@@ -1,21 +1,18 @@
 {% extends 'store/base.html' %}
 
 {% block content %}
-<header class="bg-dark py-5">
-    <div class="container px-4 px-lg-5 my-5">
-      <div class="text-center text-white">
-        <h1 class="display-4 fw-bolder">Order History</h1>
-      </div>
-    </div>
-</header>
-<div class="container my-5">
+<div class="container custom-my">
     {% for order in orders %}
     <div class="card mb-4">
         <div class="card-body">
             <div class="mb-3">
                 <div class="d-flex justify-content-between">
                     <h5 class="d-inline-block">Order ID: {{ order.id }}</h5>
+                    {% if not order.is_delivered %}
                     <a href="{% url 'order_details' order.id %}">Edit order</a>
+                    {% else %}
+                    <a href="{% url 'order_details' order.id %}">View order</a>
+                    {% endif %}
                 </div>
                 <div class="d-md-flex mt-2">
                     <div>
@@ -24,40 +21,47 @@
                     </div>
                     <div>
                         <p class="mb-0 me-4"><strong>Total cost:</strong></p>
-                        <p>R{{ order.amount_paid }}</p>
+                        <p>R{{ order.total_amount }}</p>
                     </div>
                     <div>
                         <p class="mb-0 me-4"><strong>Payment status:</strong></p>
+                        {% if order.is_delivered %}
                         <p>Paid</p>
+                        {% else %}
+                        <p>Pending...</p>
+                        {% endif %}
                     </div>
+                    {% if order.is_delivered %}
                     <div>
                         <p class="mb-0"><strong>Delivery date:</strong></p>
-                        <p>May 20, 2023</p>
-                    </div>
-                </div>
-            </div>
-            <div class="d-none d-md-block">
-                <div class="row g-1">
-                    {% for item in order.orderitem_set.all|slice:":6" %}
-                    <div class="col-md-2">
-                        <div class="text-center">                    
-                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="img-fluid mb-2" style="max-height: 100px; border-radius: 3px;">
-                            <p class="mb-0 text-truncate">{{ item.product.name }}</p>
-                        </div>
-                    </div>
-                    {% endfor %}
-                    {% if order.orderitem_set.count > 6 %}
-                    <div class="col-12 text-center mt-2">
-                        <a href="{% url 'order_details' order.id %}">See all items</a>  
+                        <p>{{ order.delivered_date|date:"F d, Y" }}</p>
                     </div>
                     {% endif %}
                 </div>
             </div>
-            <div class="d-md-none text-center mt-3">
-                <a href="{% url 'order_details' order.id %}">View Order Details</a>
+            <div class="d-none d-md-block">
+                <div class="row flex-nowrap overflow-auto">
+                    {% for item in order.orderitem_set.all %}
+                    <div class="col-md-1">
+                        <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="img-fluid mb-2 round-image" style="height: 100%; width: 100%;" >
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="d-md-none">   
+                <div class="order-items-container">
+                    <div class="row flex-nowrap overflow-auto">
+                        {% for item in order.orderitem_set.all %}
+                        <div class="col-4">
+                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="img-fluid mb-2 order-item-image round-image" style="height: 100%; width: 100%;" >
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+    <hr>
     {% empty %}
     <p>No orders found.</p>
     {% endfor %}
