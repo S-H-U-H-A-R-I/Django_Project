@@ -25,7 +25,9 @@
                     </div>
                     <i class="bi bi-x-circle remove-item" data-product-id="{{ item.id }}" onclick="removeCheckoutItem(event)"></i>
                 </div>
-                <hr class="cart-item-separator">
+                {% if not forloop.last %}
+                    <hr class="cart-item-separator">
+                {% endif %}
                 {% endfor %}
             </div>
             <hr class="cart-item-separator">
