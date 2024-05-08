@@ -3,13 +3,20 @@
     <div class="container custom-my user-info-container">
         <div class="row">
             <div class="col-md-6 offset-md-3">
-                <form method="POST" action="{% url 'update_user' %}">
+                <form id="updateUserForm" method="POST" action="{% url 'update_user' %}">
                     {% csrf_token %} {{ user_form.as_p }}
                     <br />
-                    <button type="submit" class="btn btn-success">Update</button>
                 </form>
-                <a href="{% url 'update_password' %}" class="btn btn-secondary">Update Password</a>
+                <div class="button-container">
+                    <button id="updateBtn" class="btn btn-success">Update</button>
+                    <a href="{% url 'update_password' %}" class="btn btn-secondary">Update Password</a>
+                </div>
             </div>
         </div>
     </div>
+    <script>
+        document.getElementById("updateBtn").addEventListener("click", function () {
+            document.getElementById("updateUserForm").submit()
+        });
+    </script>
 {% endblock %}

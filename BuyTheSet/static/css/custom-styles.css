@@ -628,13 +628,21 @@ color: #496057;
     }
     .container #saveChangesBtn {
         background-color: #000;
-        border-color: #000;
+        border: 1px solid #000;
         border-radius: 0;
+    }.container #saveChangesBtn:hover {
+        border-color: #fff;
     }
 
 
 
 /***** Update_user Page *****/
+
+    .user-info-container .button-container {
+        display: flex;
+        align-items: center;
+        margin-top: 20px;
+    }
     .user-info-container form p input {
         border-radius: 0;
         border: none;
@@ -647,24 +655,23 @@ color: #496057;
     }.user-info-container form p input:focus::placeholder {
         color: #333;
     }
-    .user-info-container form button {
+    .user-info-container .button-container button {
         background: #000;
         border: 1px solid #000;
         border-radius: 0;
-    }.user-info-container form button:hover {
+    }.user-info-container .button-container button:hover {
         background: #000;
-        border: none;
+        border-color: #fff;
         border-radius: 0;
     }
-    .user-info-container a.btn {
+    .user-info-container .button-container a.btn {
         background: #fff;
         color: #000;
         border-radius: 0;
-    }.user-info-container a.btn:focus {
+    }.user-info-container .button-container a.btn:focus {
         background: #000;
         color: #fff;
         border-radius: 0;
-        border: none;
     }
   
   
