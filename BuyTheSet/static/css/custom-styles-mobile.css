@@ -547,6 +547,17 @@
     }
 
 
+/***** Order_details Page *****/
+    textarea#shipping_address {
+        width: 100%;
+    }
+    .container #saveChangesBtn {
+        background-color: #000;
+        border-color: #000;
+        border-radius: 0;
+    }
+
+
 
 /* Remove arrows from quantity input field */
     input[type="number"]::-webkit-inner-spin-button,

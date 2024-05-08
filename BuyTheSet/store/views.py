@@ -1,16 +1,16 @@
+import json
 import re
 from icecream import ic
 from django.conf import settings
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
 from django.db.models import Q, Value as V
 from django.db.models.functions import Replace
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 from payments.models import Order, OrderItem, ShippingAddress
 from .forms import SignUpForm, UpdateUserform, ChangePasswordForm, UserInfoForm
 from .models import Product, Category, Profile, ProductImage
@@ -148,7 +148,23 @@ def order_details(request, order_id):
         "order": order,
     }
     return render(request, "order_details.html", context)
-    
+
+
+@csrf_exempt
+def update_order(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        order_id = data.get('order_id')
+        shipping_address = data.get('shipping_address')
+        try:
+            order = Order.objects.get(id=order_id)
+            order.shipping_address = shipping_address
+            order.save()
+            return JsonResponse({'success': True})
+        except Order.DoesNotExist:
+            return JsonResponse({'success': False})
+    return JsonResponse({'success': False})
+        
     
 def category_summary(request):
     categories = Category.objects.all()

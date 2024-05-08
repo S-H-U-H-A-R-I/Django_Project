@@ -619,6 +619,18 @@ color: #496057;
         border-radius: 0;
         background-color: #000;
     }
+
+
+
+/***** Order_details Page *****/
+    textarea#shipping_address {
+        width: 400px;
+    }
+    .container #saveChangesBtn {
+        background-color: #000;
+        border-color: #000;
+        border-radius: 0;
+    }
   
   
 }

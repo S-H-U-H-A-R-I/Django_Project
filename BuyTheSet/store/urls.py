@@ -12,6 +12,7 @@ urlpatterns = [
     # path('update-info/', views.update_info, name='update_info'),
     path('order-history/', views.order_history, name='order_history'),
     path('order/<int:order_id>/', views.order_details, name='order_details'),
+    path('order/update/', views.update_order, name='update_order'),
     path('product/<int:pk>/', views.product, name='product'),
     path('category/<str:foo>/', views.category, name='category'),  
     path('categories/', views.category_summary, name='category_summary'),
