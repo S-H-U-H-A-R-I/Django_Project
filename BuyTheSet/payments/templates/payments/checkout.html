@@ -1,72 +1,80 @@
 {% extends 'store/base.html' %}
 {% block content %}
-<div class="container custom-my checkout-container">
-    <div class="row">
+<div class="container custom-my checkout-container d-flex align-items-center justify-content-center" style="min-height: calc(100vh - 400px);">
+    <div class="row justify-content-center w-100">
         <div class="col-md-7">
-            <h4 class="checkout-heading">ORDER SUMMARY</h4>
-            <hr class="cart-item-separator heading-separator">
-            <div id="checkoutItems" class="checkout-items-container">
-                {% for item in cart_items_data %}
-                <div class="cart-item" data-product-id="{{ item.id }}">
-                    <a href="/product/{{item.id}}" class="cart-item-link">
-                        <img src="{{ item.image_url }}" alt="{{ item.name }}" class="cart-item-image">
-                    </a>
-                    <div class="cart-item-details">
-                        <h6 title="{{ item.name }}">{{ item.name }}</h6>
-                        <p class="fw-bold">R{{ item.price }}</p>
+            <div class="card shadow">
+                <div class="card-body d-flex flex-column">
+                    <h4 class="checkout-heading">ORDER SUMMARY</h4>
+                    <hr class="cart-item-separator heading-separator">
+                    <div id="checkoutItems" class="checkout-items-container">
+                        {% for item in cart_items_data %}
+                        <div class="cart-item" data-product-id="{{ item.id }}">
+                            <a href="/product/{{item.id}}" class="cart-item-link">
+                                <img src="{{ item.image_url }}" alt="{{ item.name }}" class="cart-item-image">
+                            </a>
+                            <div class="cart-item-details">
+                                <h6 title="{{ item.name }}">{{ item.name }}</h6>
+                                <p class="fw-bold">R{{ item.price }}</p>
+                            </div>
+                            <div class="quantity-input">
+                                <button class="quantity-btn minus-btn" data-product-id="{{ item.id }}">-</button>
+                                <input type="number" class="quantity-field" value="{{ item.quantity }}" data-product-id="{{ item.id }}" data-price="{{ item.price }}" max="{{ item.product.quantity }}">
+                                <button class="quantity-btn plus-btn" data-product-id="{{ item.id }}">+</button>
+                            </div>
+                            <div class="cart-item-total">
+                                <p class="fw-bold">R<span class="total-price">0.00</span></p>
+                            </div>
+                            <i class="bi bi-x-circle remove-item" data-product-id="{{ item.id }}" onclick="removeCheckoutItem(event)"></i>
+                        </div>
+                        {% if not forloop.last %}
+                            <hr class="cart-item-separator">
+                        {% endif %}
+                        {% endfor %}
                     </div>
-                    <div class="quantity-input">
-                        <button class="quantity-btn minus-btn" data-product-id="{{ item.id }}">-</button>
-                        <input type="number" class="quantity-field" value="{{ item.quantity }}" data-product-id="{{ item.id }}" data-price="{{ item.price }}" max="{{ item.product.quantity }}">
-                        <button class="quantity-btn plus-btn" data-product-id="{{ item.id }}">+</button>
-                    </div>
-                    <div class="cart-item-total">
-                        <p class="fw-bold">R<span class="total-price">0.00</span></p>
-                    </div>
-                    <i class="bi bi-x-circle remove-item" data-product-id="{{ item.id }}" onclick="removeCheckoutItem(event)"></i>
-                </div>
-                {% if not forloop.last %}
                     <hr class="cart-item-separator">
-                {% endif %}
-                {% endfor %}
-            </div>
-            <hr class="cart-item-separator">
-            <div class="text-right">
-                <h7 id="shipping-fee">Delivery: R{{ default_shipping_fee }}</h7>
-                <h5>Total: R<span id="total-amount">{{ cart_total }}</span></h5>
+                    <div class="text-right">
+                        <h7 id="shipping-fee">Delivery: R{{ default_shipping_fee }}</h7>
+                        <h5>Total: R<span id="total-amount">{{ cart_total }}</span></h5>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="col-md-5">
-            <h4>ORDER INFORMATION</h4>
-            <hr class="cart-item-separator">
-            <form id="order-form" action="{% url 'save_shipping_info' %}" method="POST">
-                {% csrf_token %}
-                <div id="shipping-fields">
-                    {{ form.as_p }}
-                </div>
-                <hr class="cart-item-separator">
-                <div id="map" style="height: 400px; display: none;"></div>
-                <div class="container my-3 d-flex justify-content-between">
-                    <button type="button" class="btn btn-dark" id="paystack-button" onclick="saveOrderInfo()">Proceed</button>
-                    <button type="button" class="btn btn-dark" style="display: none;" id="pay-button" onclick="saveOrder()">Proceed</button>
-                    <div class="d-flex justify-content-between ">
-                        <div class="form-check checkout-checkbox">
-                            <input class="form-check-input" type="checkbox" name="payment_method" id="cash-payment" value="cash">
-                            <label class="form-check-label" for="cash-payment">Cash</label>
+            <div class="card shadow">
+                <div class="card-body d-flex flex-column">
+                    <h4>ORDER INFORMATION</h4>
+                    <hr class="cart-item-separator">
+                    <form id="order-form" action="{% url 'save_shipping_info' %}" method="POST">
+                        {% csrf_token %}
+                        <div id="shipping-fields">
+                            {{ form.as_p }}
                         </div>
-                        <div class="form-check checkout-checkbox" style="margin-left: 10px;">
-                            <input class="form-check-input" type="checkbox" name="is_collect" id="is-collect" value="True">
-                            <label class="form-check-label" for="is-collect">Collect</label>
+                        <hr class="cart-item-separator">
+                        <div id="map" style="height: 400px; display: none;"></div>
+                        <div class="container my-3 d-flex justify-content-between">
+                            <button type="button" class="btn btn-dark" id="paystack-button" onclick="saveOrderInfo()">Proceed</button>
+                            <button type="button" class="btn btn-dark" style="display: none;" id="pay-button" onclick="saveOrder()">Proceed</button>
+                            <div class="d-flex justify-content-between ">
+                                <div class="form-check checkout-checkbox">
+                                    <input class="form-check-input" type="checkbox" name="payment_method" id="cash-payment" value="cash">
+                                    <label class="form-check-label" for="cash-payment">Cash</label>
+                                </div>
+                                <div class="form-check checkout-checkbox" style="margin-left: 10px;">
+                                    <input class="form-check-input" type="checkbox" name="is_collect" id="is-collect" value="True">
+                                    <label class="form-check-label" for="is-collect">Collect</label>
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                    </form>
+                    <form id="paystack-form">
+                        <input type="hidden" name="email" value="">
+                        <input type="hidden" name="first_name" value="">
+                        <input type="hidden" name="last_name" value="">
+                        <input type="hidden" name="phone" value="">
+                    </form>
                 </div>
-            </form>
-            <form id="paystack-form">
-                <input type="hidden" name="email" value="">
-                <input type="hidden" name="first_name" value="">
-                <input type="hidden" name="last_name" value="">
-                <input type="hidden" name="phone" value="">
-            </form>
+            </div>
         </div>
     </div>
 </div>
